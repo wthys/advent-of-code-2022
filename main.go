@@ -1,6 +1,7 @@
 package main
 
 import (
+    "errors"
     "context"
     "os"
     "fmt"
@@ -23,7 +24,7 @@ func notFound(ctx context.Context) cli.CommandNotFoundFunc {
         if _, err := fmt.Fprintf(
             c.App.Writer,
             "Command [%s] not supported.\n Try --help flag to see how to use it\n",
-            command
+            command,
         ); err != nil {
             log.WithError(ctx, err).Fatal("Failed to print not found message")
         }
@@ -62,7 +63,7 @@ type ctxKeySession struct{}
 func cmdRun(ctx context.Context) cli.ActionFunc {
     return func (c *cli.Context) error {
         if c.Bool("elapsed") || c.Bool("e") {
-            ctx = context.WithValue(ctx, ctxKeyWithElapsed, true)
+            ctx = context.WithValue(ctx, ctxKeyWithElapsed{}, true)
         }
 
         var sess string
@@ -71,9 +72,15 @@ func cmdRun(ctx context.Context) cli.ActionFunc {
             sess = c.String("s")
         }
 
-        ctx = content.WithValue(ctx, ctxKeySession, sess)
+        if sess == "" {
+            return errors.New("No session token was provided")
+        }
+
+        ctx = context.WithValue(ctx, ctxKeySession{}, sess)
 
         log.Info(ctx, fmt.Sprintf("%+v", ctx))
+
+        return nil
     }
 }
 
@@ -83,13 +90,14 @@ func commands(ctx context.Context) []*cli.Command {
         {
             Name: "run",
             Usage: `run a specific solution`,
-            Action: ...,
-            Flags: ...,
-            SkipFlagParsing: false
+            Action: cmdRun(ctx),
+            Flags: cmdRunFlags(),
+            SkipFlagParsing: false,
         },
     }
 }
 
+var errExit = errors.New("exit is chosen")
 
 func main() {
 
@@ -97,13 +105,13 @@ func main() {
 
     app := cli.NewApp()
     app.Name = "aoc2022"
-    app.Description = "Solutions of puzzles for Advent of Code 2022"
-        + " (https://adventofcode.com/2022)"
+    app.Description = "Solutions of puzzles for Advent of Code 2022" +
+        " (https://adventofcode.com/2022)"
     app.Usage = `a command line tool for getting solutions for Advent of Code puzzles`
     app.Authors = []*cli.Author{
         {
             Name: "Wim Thys",
-            Email: "wim.thys@zardof.be"
+            Email: "wim.thys@zardof.be",
         },
     }
 
