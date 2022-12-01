@@ -5,14 +5,13 @@ import (
     "strconv"
     "sort"
 
-    "main"
 )
 
 
 type solution struct {}
 
 func init() {
-    main.Register(solution{})
+//    main.Register(solution{})
 }
 
 func (s solution) Day() string {
@@ -48,7 +47,7 @@ func parseInput(lines []string) ([]Elf, error) {
             elf := Elf{ rations }
             elves = append(elves, elf)
             rations = make([]int, 0)
-        } else {
+	} else {
             energy, err := strconv.Atoi(line)
             if err != nil {
                 return nil, fmt.Errorf("value on line #%v is not a number (%v)", nr+1, line)
@@ -69,7 +68,8 @@ func (s solution) Part1(input []string) (string, error) {
     elves, err := parseInput(input)
 
     if err != nil {
-        return main.unknown, err
+	  return "blabla", err
+//        return main.unknown, err
     }
 
     var best int = elves[0].TotalCalories()
@@ -91,7 +91,8 @@ func (s solution) Part2(input []string) (string, error) {
     elves, err := parseInput(input)
 
     if err != nil {
-        return main.unknown, err
+        //return main.unknown, err
+	return "blabla", err
     }
 
     top := elves[:]
