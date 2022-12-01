@@ -1,8 +1,20 @@
 NAME=aoc2022
 BIN_DIR=./bin
 
-build: compile-aoc
+PROG=$(BIN_DIR)/$(NAME)
+
+SOURCE=$(wildcard src/*.go)
+
+build: $(PROG)
 .PHONY: build
 
-compile-aoc: bin/${NAME}
-	@docker build --target bin --output ${BIN_DIR}/ . 
+$(PROG): src/go.mod $(SOURCE)
+	docker build --target bin --output $(BIN_DIR)/ . 
+	touch $(PROG)
+
+run: $(PROG)
+	@$(PROG) input $(DAY) | $(PROG) run $(DAY)
+
+
+clean:
+	rm -f $(PROG)
