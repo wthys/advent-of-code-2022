@@ -1,28 +1,30 @@
-package main
+package day1
 
 import (
     "fmt"
     "strconv"
     "sort"
+
+    "main"
 )
 
 
-type day1 struct {}
+type solution struct {}
 
 func init() {
-    Register(day1{})
+    main.Register(solution{})
 }
 
-func (s day1) Day() string {
+func (s solution) Day() string {
     return "1"
 }
 
 
-type Elf1 struct {
+type Elf struct {
     Rations []int
 }
 
-func (e Elf1) TotalCalories() int {
+func (e Elf) TotalCalories() int {
     if e.Rations == nil {
         return 0
     }
@@ -36,14 +38,14 @@ func (e Elf1) TotalCalories() int {
 }
 
 
-func parseInput(lines []string) ([]Elf1, error) {
-    elves := make([]Elf1, 0)
+func parseInput(lines []string) ([]Elf, error) {
+    elves := make([]Elf, 0)
 
     rations := make([]int, 0)
 
     for nr, line := range lines {
         if len(line) == 0 {
-            elf := Elf1{ rations }
+            elf := Elf{ rations }
             elves = append(elves, elf)
             rations = make([]int, 0)
         } else {
@@ -57,17 +59,17 @@ func parseInput(lines []string) ([]Elf1, error) {
     }
 
     // don't forget the last Elf
-    elves = append(elves, Elf1{ rations })
+    elves = append(elves, Elf{ rations })
 
     return elves, nil
 }
 
-func (s day1) Part1(input []string) (string, error) {
+func (s solution) Part1(input []string) (string, error) {
 
     elves, err := parseInput(input)
 
     if err != nil {
-        return unknown, err
+        return main.unknown, err
     }
 
     var best int = elves[0].TotalCalories()
@@ -84,12 +86,12 @@ func (s day1) Part1(input []string) (string, error) {
     return fmt.Sprintf("%v", best), nil
 }
 
-func (s day1) Part2(input []string) (string, error) {
+func (s solution) Part2(input []string) (string, error) {
 
     elves, err := parseInput(input)
 
     if err != nil {
-        return unknown, err
+        return main.unknown, err
     }
 
     top := elves[:]
