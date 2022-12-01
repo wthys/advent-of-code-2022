@@ -10,6 +10,7 @@ import (
     log "github.com/obalunenko/logger"
     "github.com/urfave/cli/v2"
 
+    "github.com/wthys/advent-of-code-2022/solutions/day1"
 )
 
 
@@ -166,6 +167,7 @@ func main() {
     app.Commands = commands(ctx)
     app.After = onExit(ctx)
 
+    fmt.Println(day1.Day())
     if err := app.Run(os.Args); err != nil {
         if errors.Is(err, errExit) {
             return
