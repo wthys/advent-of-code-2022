@@ -19,3 +19,7 @@ parameter. See `aoc2022 --help` for more info.
 
 For your convenience, `make run-all` runs the solutions for all available
 puzzles and `make run DAY=XX` runs the solutions for day XX.
+
+## Acknowledgements
+
+The solver framework was largely inspired by [obalenenko's AoC package](https://github.com/obalunenko/advent-of-code).
