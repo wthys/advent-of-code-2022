@@ -139,7 +139,7 @@ func createInputReq(ctx context.Context, d string, sessionID string) (*http.Requ
 	})
 
 	req.Header.Set("User-Agent",
-		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36")
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36 (github.com/wthys/advent-of-code-2022 by wim.thys@zardof.be)")
 
 	return req, nil
 }
