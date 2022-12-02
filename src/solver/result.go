@@ -1,4 +1,4 @@
-package main
+package solver
 
 import (
     "fmt"
@@ -16,15 +16,15 @@ type Result struct{
 
 func (r Result) String() string {
     if r.Part1 == "" {
-        r.Part1 = unsolved
+        r.Part1 = Unsolved
     }
 
     if r.Part2 == "" {
-        r.Part2 = unsolved
+        r.Part2 = Unsolved
     }
 
     if r.Name == "" {
-        r.Name = unknown
+        r.Name = Unknown
     }
 
 

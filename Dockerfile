@@ -1,6 +1,6 @@
 FROM golang:latest AS build
 WORKDIR /src
-COPY src/* .
+COPY src /src
 RUN go get
 RUN go build -o /out/aoc2022
 

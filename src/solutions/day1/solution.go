@@ -5,13 +5,14 @@ import (
     "strconv"
     "sort"
 
+    "github.com/wthys/advent-of-code-2022/solver"
 )
 
 
 type solution struct {}
 
 func init() {
-//    main.Register(solution{})
+    solver.Register(solution{})
 }
 
 func (s solution) Day() string {
@@ -68,8 +69,7 @@ func (s solution) Part1(input []string) (string, error) {
     elves, err := parseInput(input)
 
     if err != nil {
-	  return "blabla", err
-//        return main.unknown, err
+          return solver.Unsolved, err
     }
 
     var best int = elves[0].TotalCalories()
@@ -91,8 +91,7 @@ func (s solution) Part2(input []string) (string, error) {
     elves, err := parseInput(input)
 
     if err != nil {
-        //return main.unknown, err
-	return "blabla", err
+        return solver.Unsolved, err
     }
 
     top := elves[:]

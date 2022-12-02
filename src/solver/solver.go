@@ -1,4 +1,4 @@
-package main
+package solver
 
 import (
     "errors"
@@ -8,15 +8,20 @@ import (
 
 
 const (
-    unknown = "unknown"
-    unsolved = "unsolved"
-    undefined = "undefined"
-    inProgress = "in progress"
+    Unknown = "unknown"
+    Unsolved = "unsolved"
+    Undefined = "undefined"
+    InProgress = "in progress"
 )
 
 var (
-    NotImplemented = errors.New("Not implemented")
+    ErrNotImplemented = errors.New("Not implemented")
 )
+
+func NotImplemented() (string, error) {
+    return Unsolved, ErrNotImplemented
+}
+
 
 type Day int
 
@@ -62,8 +67,8 @@ func GetSolver(day string) (Solver, error) {
 func Solve(solver Solver, input io.Reader) (Result, error) {
     res := Result{
         Name: solver.Day(),
-        Part1: unsolved,
-        Part2: unsolved,
+        Part1: Unsolved,
+        Part2: Unsolved,
     }
 
     lines, err := ReadLines(input)
@@ -81,12 +86,12 @@ func Solve(solver Solver, input io.Reader) (Result, error) {
 
 func (r *Result) AddAnswers(s Solver, input []string) error {
     part1, err := s.Part1(input)
-    if err != nil && !errors.Is(err, NotImplemented) {
+    if err != nil && !errors.Is(err, ErrNotImplemented) {
         return fmt.Errorf("failed to solve Part1: %w", err)
     }
 
     part2, err := s.Part2(input)
-    if err != nil && !errors.Is(err, NotImplemented) {
+    if err != nil && !errors.Is(err, ErrNotImplemented) {
         return fmt.Errorf("failed to solve Part2: %w", err)
     }
 

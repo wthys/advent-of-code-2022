@@ -10,7 +10,8 @@ import (
     log "github.com/obalunenko/logger"
     "github.com/urfave/cli/v2"
 
-    "github.com/wthys/advent-of-code-2022/solutions/day1"
+    "github.com/wthys/advent-of-code-2022/solver"
+    _ "github.com/wthys/advent-of-code-2022/solutions"
 )
 
 
@@ -59,12 +60,12 @@ func cmdRun(ctx context.Context) cli.ActionFunc {
             ctx = context.WithValue(ctx, ctxKeyWithElapsed{}, true)
         }
 
-        solver, err := GetSolver(c.Args().First())
+        s, err := solver.GetSolver(c.Args().First())
         if err != nil {
             return err
         }
 
-        res, err := Solve(solver, bufio.NewReader(os.Stdin))
+        res, err := solver.Solve(s, bufio.NewReader(os.Stdin))
 
         if err != nil {
             return err
@@ -113,7 +114,7 @@ func cmdInput(ctx context.Context) cli.ActionFunc {
             return errors.New("no puzzle provided")
         }
 
-        input, err := GetInput(ctx, day, sess)
+        input, err := solver.GetInput(ctx, day, sess)
 
         if err != nil {
             return err
@@ -167,7 +168,6 @@ func main() {
     app.Commands = commands(ctx)
     app.After = onExit(ctx)
 
-    fmt.Println(day1.Day())
     if err := app.Run(os.Args); err != nil {
         if errors.Is(err, errExit) {
             return

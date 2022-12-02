@@ -1,5 +1,5 @@
 // Package input provides access to embedded puzzles input files.
-package main
+package solver
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 
 var (
 	// ErrNotFound returns when puzzle input is not yet unlocked or invalid date passed.
-	ErrNotFound = errors.New("puzzle inout not found")
+	ErrNotFound = errors.New("puzzle input not found")
 	// ErrUnauthorized returns when session is empty or invalid.
 	ErrUnauthorized = errors.New("unauthorized")
 )
