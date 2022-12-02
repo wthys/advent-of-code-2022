@@ -34,7 +34,7 @@ func (r Result) String() string {
 
     var empty []string
 
-    header := []string{fmt.Sprintf("%s puzzle answer", r.Name)}
+    header := []string{fmt.Sprintf("Day %s puzzle answer", r.Name)}
     part1 := []string{"part1", r.Part1}
     part2 := []string{"part2", r.Part2}
 
