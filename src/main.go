@@ -71,7 +71,7 @@ func cmdRun(ctx context.Context) cli.ActionFunc {
             return err
         }
 
-        fmt.Print(res.String())
+        fmt.Println(res)
 
         return nil
     }
