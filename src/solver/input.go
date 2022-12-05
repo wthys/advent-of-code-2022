@@ -12,6 +12,7 @@ import (
 	"time"
         "bufio"
         "strings"
+        "unicode"
 
 	log "github.com/obalunenko/logger"
 )
@@ -87,7 +88,7 @@ func ReadLines(r io.Reader) ([]string, error) {
     line, err := rdr.ReadString(newline)
 
     for err == nil {
-        lines = append(lines, strings.TrimSpace(line))
+        lines = append(lines, strings.TrimRightFunc(line, unicode.IsSpace))
 
         line, err = rdr.ReadString(newline)
     }

@@ -15,7 +15,7 @@ build: $(PROG)
 
 
 $(PROG): src/go.mod $(GOFILES)
-	docker build --target bin --output $(BIN_DIR)/ . 
+	DOCKER_BUILDKIT=1 docker build --target bin --output $(BIN_DIR)/ . 
 	touch $(PROG)
 
 
