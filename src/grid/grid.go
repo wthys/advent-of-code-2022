@@ -8,7 +8,7 @@ import (
 type (
     Grid[T any] struct {
         defaultFunc DefaultFunction[T]
-        data map[string]T
+        data map[location.Location]T
     }
 
     Bounds struct {
@@ -55,14 +55,14 @@ func WithDefault[T any](value T) *Grid[T] {
 // `WithDefaultFunc` creates a `Grid` using the provided `DefaultFunction` for
 // unknown `Location`s.
 func WithDefaultFunc[T any](defaultFunc DefaultFunction[T]) *Grid[T] {
-    return &Grid[T]{defaultFunc, map[string]T{}}
+    return &Grid[T]{defaultFunc, map[location.Location]T{}}
 }
 
 // `Get` retrieves the value stored at `loc`. If there is no value stored, the
 // `Grid`'s `DefaultFunction` is called. If no `DefaultFunction` was set,
 // `DefaultError[T]()` is used.
 func (g *Grid[T]) Get(loc location.Location) (T, error) {
-    val, ok := g.data[loc.String()]
+    val, ok := g.data[loc]
     if ok {
         return val, nil
     }
@@ -75,20 +75,19 @@ func (g *Grid[T]) Get(loc location.Location) (T, error) {
 
 // `Set` stores a value at `loc`.
 func (g *Grid[T]) Set(loc location.Location, value T) {
-    g.data[loc.String()] = value
+    g.data[loc] = value
 }
 
 // `Remove` removes the stored value at `loc`, if any.
 func (g *Grid[T]) Remove(loc location.Location) {
-    delete(g.data, loc.String())
+    delete(g.data, loc)
 }
 
 // `Apply` applies a function to all stored values. Both the `Location` and the
 // value are provided to the given `ApplyFunction`.
 func (g *Grid[T]) Apply(applyFunc ApplyFunction[T]) {
     for loc, value := range g.data {
-        l, _ := location.FromString(loc)
-        applyFunc(l, value)
+        applyFunc(loc, value)
     }
 }
 
