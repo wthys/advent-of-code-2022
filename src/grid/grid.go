@@ -29,7 +29,7 @@ func DefaultValue[T any](value T) DefaultFunction[T] {
 
 // `DefaultZero` creates a `DefaultFunction` that always returns the 'zero' value.
 func DefaultZero[T any]() DefaultFunction[T] {
-    return DefaultValue[T](*new(T))
+    return DefaultValue(*new(T))
 }
 
 // `DefaultError` creates a `DefaultFunction` that always returns an error "no
@@ -43,13 +43,13 @@ func DefaultError[T any]() DefaultFunction[T] {
 // `New` creates a `Grid` using the `DefaultError` `DefaultFunction` for unknown
 // `Location`s. Equivalent to `WithDefaultFunc(DefaultError())`.
 func New[T any]() *Grid[T] {
-    return WithDefaultFunc[T](DefaultError[T]())
+    return WithDefaultFunc(DefaultError[T]())
 }
 
 // `WithDefault` creates a `Grid` using the `DefaultValue` `DefaultFunction` for
 // unknown `Location`s. Equivalent to `WithDefaultFunc(DefaultValue(value))`.
 func WithDefault[T any](value T) *Grid[T] {
-    return WithDefaultFunc[T](DefaultValue[T](value))
+    return WithDefaultFunc(DefaultValue(value))
 }
 
 // `WithDefaultFunc` creates a `Grid` using the provided `DefaultFunction` for
