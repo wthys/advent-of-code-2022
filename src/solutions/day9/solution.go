@@ -26,42 +26,9 @@ func (s solution) Part1(input []string) (string, error) {
         return "", err
     }
 
-    g := grid.WithDefault[int](0)
+    knots := []loc.Location{loc.New(0,0), loc.New(0,0)}
 
-    head, tail := loc.New(0,0), loc.New(0,0)
-
-    GridInc(g, head, 0)
-    GridInc(g, tail, 1)
-
-    for _, move := range moves {
-        dir := DIRECTIONS[move.Heading]
-        //fmt.Printf("\n== %v ==\n", move)
-        for i := 0; i < move.Amount; i++ {
-            head = head.Add(dir)
-            GridInc(g, head, 0)
-            diff := head.Subtract(tail)
-
-            xclose := diff.X >= -1 && diff.X <= 1
-            yclose := diff.Y >= -1 && diff.Y <= 1
-
-            if !(xclose && yclose) {
-                tail = tail.Add(diff.Unit())
-                GridInc(g, tail, 1)
-            }
-
-            //fmt.Println()
-            //PrintGrid(g, head, tail)
-        }
-
-    }
-
-    total := 0
-    counter := func(_ loc.Location, n int) {
-        if n > 0 {
-            total += 1
-        }
-    }
-    g.Apply(counter)
+    total := Simulate(knots, moves)
 
     return strconv.Itoa(total), nil
 }
@@ -72,18 +39,44 @@ func (s solution) Part2(input []string) (string, error) {
         return "", err
     }
 
-    g := grid.WithDefault[int](0)
-
     knots := []loc.Location{}
     for len(knots) < 10 {
         knots = append(knots, loc.New(0,0))
     }
 
-    GridInc(g, knots[9], 1)
+    total := Simulate(knots, moves)
+
+    return strconv.Itoa(total), nil
+}
+
+type Move struct {
+    Heading string
+    Amount int
+}
+
+const (
+    UP = "U"
+    DOWN = "D"
+    LEFT = "L"
+    RIGHT = "R"
+)
+
+var DIRECTIONS = map[string]loc.Location {
+    UP: loc.New(0,-1),
+    DOWN: loc.New(0,1),
+    LEFT: loc.New(-1,0),
+    RIGHT: loc.New(1,0),
+}
+
+func Simulate(knots []loc.Location, moves []Move) int {
+    g := grid.WithDefault[int](0)
+
+    tail := len(knots)-1
+
+    GridInc(g, knots[tail], 1)
 
     for _, move := range moves {
         dir := DIRECTIONS[move.Heading]
-        //fmt.Printf("\n== %v ==\n", move)
         for i := 0; i < move.Amount; i++ {
             for k, knot := range knots {
                 switch k {
@@ -91,7 +84,7 @@ func (s solution) Part2(input []string) (string, error) {
                     knots[k] = knot.Add(dir)
                     GridInc(g, knots[k], 0)
                     continue
-                case 9: // tail
+                case tail: // tail
                     prev := knots[k-1]
                     newPos := moveCloser(knot, prev)
                     knots[k] = newPos
@@ -117,26 +110,7 @@ func (s solution) Part2(input []string) (string, error) {
     }
     g.Apply(counter)
 
-    return strconv.Itoa(total), nil
-}
-
-type Move struct {
-    Heading string
-    Amount int
-}
-
-const (
-    UP = "U"
-    DOWN = "D"
-    LEFT = "L"
-    RIGHT = "R"
-)
-
-var DIRECTIONS = map[string]loc.Location {
-    UP: loc.New(0,-1),
-    DOWN: loc.New(0,1),
-    LEFT: loc.New(-1,0),
-    RIGHT: loc.New(1,0),
+    return total
 }
 
 func moveCloser(l, tgt loc.Location) loc.Location {
