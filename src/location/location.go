@@ -9,7 +9,8 @@ import (
 )
 
 var (
-    reFromStr = regexp.MustCompile("[(]\\s*(\\d+)\\s*,\\s*(\\d+)\\s*[)]")
+    reFromStr = regexp.MustCompile("^\\s*[(]\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*[)]\\s*$")
+    ErrWrongFormat = fmt.Errorf("wrong Location format")
 )
 
 func New(x, y int) Location {
@@ -20,7 +21,7 @@ func FromString(input string) (Location, error) {
     none := Location{}
     caps := reFromStr.FindStringSubmatch(input)
     if caps == nil {
-        return none, fmt.Errorf("no Location representation found")
+        return none, ErrWrongFormat
     }
 
     var (
