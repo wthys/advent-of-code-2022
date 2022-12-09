@@ -4,6 +4,8 @@ import (
     "fmt"
     "regexp"
     "strconv"
+
+    "github.com/wthys/advent-of-code-2022/util"
 )
 
 var (
@@ -48,9 +50,17 @@ func (l Location) String() string {
 }
 
 func (l Location) Add(o Location) Location {
-    return Location{l.X + o.X, l.Y + o.Y}
+    return New(l.X + o.X, l.Y + o.Y)
 }
 
 func (l Location) Scale(scale int) Location {
-    return Location{l.X * scale, l.Y * scale}
+    return New(l.X * scale, l.Y * scale)
+}
+
+func (l Location) Subtract(o Location) Location {
+    return New(l.X - o.X, l.Y - o.Y)
+}
+
+func (l Location) Unit() Location {
+    return New(util.Sign(l.X), util.Sign(l.Y))
 }
