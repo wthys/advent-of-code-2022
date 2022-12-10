@@ -9,7 +9,7 @@ NOWDATE:=$(shell TZ="EST" date +%Y%m%d)
 NOWDAY:=$(shell TZ="EST" date +%d)
 ENDDATE:=20221225
 
-.PHONY: build run run-all clean
+.PHONY: build run run-all clean example
 
 build: $(PROG)
 
@@ -29,3 +29,6 @@ run-all: $(PROG)
 
 clean:
 	rm -f $(PROG)
+
+example: $(PROG)
+	@cat examples/day$(DAY).txt | $(PROG) run $(DAY)
