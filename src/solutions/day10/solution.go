@@ -6,7 +6,9 @@ import (
     "strconv"
     "strings"
 
+    "github.com/wthys/advent-of-code-2022/util/blockoutput"
     "github.com/wthys/advent-of-code-2022/solver"
+
     "github.com/wthys/advent-of-code-2022/solutions/day10/cpu"
     "github.com/wthys/advent-of-code-2022/solutions/day10/cpu/register"
 )
@@ -62,7 +64,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     crt := [][]rune{}
     for j := 0; j < 6; j++ {
-        crt = append(crt, []rune(strings.Repeat("_", 40)))
+        crt = append(crt, []rune(strings.Repeat(".", 40)))
     }
 
     watcher := func(_ cpu.Instruction, reg *register.Register) {
@@ -81,11 +83,15 @@ func (s solution) Part2(input []string) (string, error) {
 
     cp.Execute(program)
 
+    /*
     for _, line := range crt {
-        fmt.Println(string(line))
+        fmt.Println(strings.ReplaceAll(string(line), ".", "_"))
     }
+    //*/
 
-    return "^^^", nil
+    message := blockoutput.FromBlockLetters(crt)
+
+    return message, nil
 }
 
 
