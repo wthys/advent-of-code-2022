@@ -68,7 +68,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     //floor
     bounds, _ := g.Bounds()
-    for x := bounds.Xmin - bounds.Ymax + 2; x <= bounds.Xmax + bounds.Ymax + 2; x++ {
+    for x := bounds.Xmin - bounds.Ymax - 2; x <= bounds.Xmax + bounds.Ymax + 2; x++ {
         loc := location.New(x, bounds.Ymax + 2)
         g.Set(loc, "=")
     }
