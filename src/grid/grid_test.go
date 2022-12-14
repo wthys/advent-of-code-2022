@@ -195,3 +195,32 @@ func TestBoundsEmpty(t *testing.T) {
         t.Fatalf("g.Bounds() = %v, %v, want %v, %v", bounds, err != nil, want, true)
     }
 }
+
+func contained(t *testing.T, b Bounds, loc location.Location, want bool) {
+    if b.Contains(loc) != want {
+        t.Fatalf("%v.Contains(%v) = %v, want %v", b, loc, !want, want)
+    }
+}
+
+func TestBoundsContains(t *testing.T) {
+    g := New[int]()
+
+    topleft := location.New(-2,-2)
+    bottomright := location.New(3,4)
+
+    g.Set(topleft, 1)
+    g.Set(bottomright, 1)
+
+    bounds, _ := g.Bounds()
+
+    outside := location.New(4,6)
+    samex := location.New(1, 7)
+    samey := location.New(4, 2)
+    within := location.New(2,3)
+
+    contained(t, bounds, within, true)
+    contained(t, bounds, samex, false)
+    contained(t, bounds, samey, false)
+    contained(t, bounds, outside, false)
+
+}
