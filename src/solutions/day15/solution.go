@@ -2,8 +2,6 @@ package day15
 
 import (
     "fmt"
-    "sync"
-    "time"
     "regexp"
     "strconv"
 
@@ -50,8 +48,8 @@ func (s solution) Part1(input []string) (string, error) {
         }
     }
 
+    //row := 10
     row := 2_000_000
-
 
     relevant_pairs := []Pair{}
     for _, pair := range pairs {
@@ -60,8 +58,6 @@ func (s solution) Part1(input []string) (string, error) {
             relevant_pairs = append(relevant_pairs, pair)
         }
     }
-
-    fmt.Printf("%v pairs, %v are relevant y=%v\n", len(pairs), len(relevant_pairs), row)
 
     total := 0
     for x := leftmost; x <= rightmost; x++ {
@@ -93,70 +89,42 @@ func (s solution) Part2(input []string) (string, error) {
     }
 
 
-    limit := 4_000_000
     //limit := 20
-
-
-    center := location.New(0,0)
-    for _, pair := range pairs {
-        center = center.Add(pair.Sensor)
-    }
-
-    center.X = center.X / len(pairs)
-    center.Y = center.Y / len(pairs)
-
+    limit := 4_000_000
 
     bounds := grid.Bounds{0,limit,0,limit}
-    candidates := set.New()
 
-    prog := Progress{}
+    found := false
 
-    wg := sync.WaitGroup{}
-    for offset := 1; offset <= 3; offset++{
-        fmt.Printf("checking edge %v\n", offset)
+    distressbeacon := location.New(0,0)
+
+    for offset := 1; offset <= 3 && !found; offset++{
+        //fmt.Printf("checking edge %v\n", offset)
         for _, pair := range pairs {
             pair.EdgeDo(offset, func(loc location.Location) {
-                if true {
-                    fmt.Printf("%v       \r",prog.Tick())
+                if found {
+                    return
                 }
-                wg.Add(1)
-                go func() {
-                    if !bounds.Contains(loc) {
-                        //fmt.Printf("%v out of bounds\n", loc)
+
+                if !bounds.Contains(loc) {
+                    //fmt.Printf("%v out of bounds\n", loc)
+                    return
+                }
+
+                for _, pair := range pairs {
+                    if pair.Contains(loc) {
+                        //fmt.Printf("%v claimed by %v\n", loc, pair.Sensor)
                         return
                     }
+                }
 
-                    for _, pair := range pairs {
-                        if pair.Contains(loc) {
-                            //fmt.Printf("%v claimed by %v\n", loc, pair.Sensor)
-                            return
-                        }
-                    }
-
-                    candidates.Insert(loc)
-                    wg.Done()
-
-                }()
+                found = true
+                distressbeacon = loc
             })
         }
     }
 
-    wg.Wait()
-
-    fmt.Printf("determining closest of %v candidates\n", candidates.Len())
-    centermost := location.New(0,0)
-    candidates.Do(func(el interface{}) {
-        loc, _ := el.(location.Location)
-        if ManhattanDistance(loc, center) < ManhattanDistance(centermost, center) {
-            centermost = loc
-        }
-    })
-
-    freq := TuningFrequency(centermost)
-
-    fmt.Printf("%v => %v\n", centermost, freq)
-
-
+    freq := TuningFrequency(distressbeacon)
     return strconv.Itoa(freq), nil
 }
 
@@ -165,33 +133,7 @@ type (
         Sensor location.Location
         Beacon location.Location
     }
-
-    Progress struct {
-        idx int
-        start *time.Time
-    }
 )
-
-func (p *Progress) Tick() string {
-    glyphs := "-/|\\"
-    p.idx = (p.idx + 1) % len(glyphs)
-    if p.start == nil {
-        now := time.Now()
-        p.start = &now
-    }
-    return fmt.Sprintf("  %v  %v", string(glyphs[p.idx]), time.Since(*(p.start)))
-}
-
-func prepareGrid(pairs []Pair) *grid.Grid[string] {
-    g := grid.WithDefault(".")
-
-    for _, pair := range pairs {
-        g.Set(pair.Sensor, "S")
-        g.Set(pair.Beacon, "B")
-    }
-
-    return g
-}
 
 func (p Pair) Distance() int {
     return ManhattanDistance(p.Sensor, p.Beacon)
@@ -209,16 +151,6 @@ func (p Pair) EdgeDo(offset int, doer func(loc location.Location)) {
     }
 }
 
-func (p Pair) Edge(offset int) *set.Set {
-    edge := set.New()
-
-    p.EdgeDo(offset, func(loc location.Location) {
-        edge.Insert(loc)
-    })
-
-    return edge
-}
-
 func ManhattanDistance(a, b location.Location) int {
     diff := a.Subtract(b)
     return util.Abs(diff.X) + util.Abs(diff.Y)
@@ -226,59 +158,6 @@ func ManhattanDistance(a, b location.Location) int {
 
 func TuningFrequency(loc location.Location) int {
     return 4_000_000 * loc.X + loc.Y
-}
-
-func rotate90(loc location.Location) location.Location {
-    return location.New(-loc.Y, loc.X)
-}
-
-func min(values ...int) int {
-    least := values[0]
-    for _, val := range values {
-        if val < least {
-            least = val
-        }
-    }
-    return least
-}
-
-func SpiralDo(center location.Location, max int, doer func(loc location.Location) error) {
-    loc := center
-    motion := location.New(1, 0)
-    extent := 0
-
-    stop := make(chan int)
-
-    wg := sync.WaitGroup{}
-
-    count := max
-    for count > 0 {
-        if motion.Y == 0 {
-            extent += 1
-        }
-        k := min(count, extent)
-        for k > 0 {
-            wg.Add(1)
-            go func() {
-                err := doer(loc)
-                if err != nil {
-                    stop <- 1
-                }
-                wg.Done()
-            }()
-            loc = loc.Add(motion)
-            k -= 1
-        }
-
-        select {
-        case <- stop:
-            wg.Wait()
-            return
-        case <- time.After(time.Millisecond):
-            wg.Wait()
-        }
-        motion = rotate90(motion)
-    }
 }
 
 func parseInput(input []string) ([]Pair, error) {
