@@ -159,3 +159,12 @@ func (g *Grid[T]) Print() {
 func (b *Bounds) Contains(loc location.Location) bool {
     return loc.X >= b.Xmin && loc.X <= b.Xmax && loc.Y >= b.Ymin && loc.Y <= b.Ymax
 }
+
+func (b Bounds) Apply(apply func(loc location.Location)) {
+    for y := b.Ymin; y <= b.Ymax; y++ {
+        for x := b.Xmin; x <= b.Xmax; x++ {
+            loc := location.New(x, y)
+            apply(loc)
+        }
+    }
+}
