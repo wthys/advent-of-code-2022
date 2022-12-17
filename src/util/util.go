@@ -23,6 +23,13 @@ func Abs[T Number](val T) T {
     return val
 }
 
+func IIf[T any](condition bool, yes, no T) T {
+    if condition {
+        return yes
+    }
+    return no
+}
+
 func Humanize(val int) string {
     if val < 1000 {
         return fmt.Sprint(val)
@@ -39,4 +46,46 @@ func Humanize(val int) string {
     }
 
     return fmt.Sprintf("%vG", val/1000)
+}
+
+func PermutationDo[T any](k int, values []T, doer func (permutation []T)) {
+    c := []int{}
+    for i := 0; i < k; i++ {
+        c = append(c, 0)
+    }
+
+    array := values
+
+    doer(array)
+
+    i := 1
+    for i < k {
+        if c[i] >= i {
+            c[i] = 0
+            i += 1
+            continue
+        }
+
+        if i % 2 == 0 {
+            array[0], array[i] = array[i], array[0]
+        } else {
+            array[c[i]], array[i] = array[i], array[c[i]]
+        }
+        doer(array)
+
+        c[i] += 1
+        i = 1
+    }
+}
+
+func PairWiseDo[T any](values []T, doer func(a, b T)) {
+    if len(values) < 2 {
+        return
+    }
+
+    prev := values[0]
+    for _, val := range values[1:] {
+        doer(prev, val)
+        prev = val
+    }
 }

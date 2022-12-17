@@ -84,3 +84,35 @@ func TestAbsFloat(t *testing.T) {
         })
     }
 }
+
+func hash(array []int) int {
+    h := 0
+    for _, value := range array {
+        h = 13*h + value
+    }
+    return h
+}
+
+func TestPermutationDo(t *testing.T) {
+    array := []int{1,2,3}
+
+    check := map[int]bool{
+        hash([]int{1,2,3}): false,
+        hash([]int{1,3,2}): false,
+        hash([]int{2,1,3}): false,
+        hash([]int{2,3,1}): false,
+        hash([]int{3,2,1}): false,
+        hash([]int{3,1,2}): false,
+    }
+
+    PermutationDo(3, array, func(perm []int) {
+        check[hash(perm)] = true
+    })
+
+    for value, seen := range check {
+        if !seen {
+            t.Fatalf("PermutationDo(3, %v, ...) should produce %v, but was not seen", array, value)
+        }
+    }
+
+}
