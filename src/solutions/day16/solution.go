@@ -29,13 +29,118 @@ func (s solution) Part1(input []string) (string, error) {
 
     paths := calculatePaths(tunnels, rates)
 
-    pressure, path := findBestPressurePath("AA", paths, rates, 30, set.New())
+    pressure, _ := findBestPressurePath("AA", paths, rates, 30, set.New())
 
     return strconv.Itoa(pressure), nil
 }
 
 func (s solution) Part2(input []string) (string, error) {
-    return solver.NotImplemented()
+    tunnels, rates, err := parseInput(input)
+    if err != nil {
+        return "", err
+    }
+
+    paths := calculatePaths(tunnels, rates)
+
+    pressure, routes := findBestCombinedPressurePaths([]string{"AA","AA"}, paths, rates, []int{26,26}, set.New())
+
+    for _, route := range routes {
+        fmt.Println(route)
+    }
+
+    return strconv.Itoa(pressure), nil
+}
+
+func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates ValveRates, timeLeft []int, visited *set.Set) (pressure int, routes [][]string) {
+    if timeLeft[0] <= 0 && timeLeft[1] <= 0 {
+        return 0, [][]string{[]string{}, []string{}}
+    }
+
+    if visited.Has(start[0]) && visited.Has(start[1]) {
+        return 0, [][]string{[]string{}, []string{}}
+    }
+
+    newVisited := set.New().Union(visited)
+
+    youdone, eledone := start[0] == "", start[1] == ""
+
+    pressure = 0
+
+    if timeLeft[0] > 0 && !youdone {
+        rate := rates[start[0]]
+        newVisited.Insert(start[0])
+        if rate > 0 {
+            timeLeft[0] -= 1
+            pressure += timeLeft[0] * rate
+        }
+    }
+
+    if timeLeft[1] > 0 && !eledone {
+        rate := rates[start[1]]
+        newVisited.Insert(start[1])
+        if rate > 0 {
+            timeLeft[1] -= 1
+            pressure += timeLeft[1] * rate
+        }
+    }
+
+    bestPressure := 0
+    bestRoutes := [][]string{[]string{}, []string{}}
+
+    youdests := []string{}
+    if timeLeft[0] > 1 && !youdone {
+        for dest, _ := range paths[start[0]] {
+            if newVisited.Has(dest) {
+                continue
+            }
+            youdests = append(youdests, dest)
+        }
+    } else {
+        youdests = append(youdests, "")
+    }
+
+    eledests := []string{}
+    if timeLeft[1] > 1 && !eledone {
+        for dest, _ := range paths[start[1]] {
+            if newVisited.Has(dest) {
+                continue
+            }
+            eledests = append(eledests, dest)
+        }
+    } else {
+        eledests = append(eledests, "")
+    }
+
+    for _, youdest := range youdests {
+        youtime := 0
+        if !youdone {
+            youtime = len(paths[start[0]][youdest])
+        }
+
+        for _, eledest := range eledests {
+            if eledest == youdest {
+                continue
+            }
+
+            eletime := 0
+            if !eledone {
+                eletime = len(paths[start[1]][eledest])
+            }
+
+            lefts := []int{timeLeft[0] - youtime, timeLeft[1] - eletime}
+            pres, rts := findBestCombinedPressurePaths([]string{youdest, eledest}, paths, rates, lefts, newVisited)
+
+            if pres > bestPressure {
+                bestPressure = pres
+                bestRoutes = rts
+            }
+        }
+    }
+
+    return pressure + bestPressure, [][]string{
+        append([]string{start[0]}, bestRoutes[0]...),
+        append([]string{start[1]}, bestRoutes[1]...),
+    }
 }
 
 func findBestPressurePath(start string, paths shortestPaths, rates ValveRates, timeLeft int, visited *set.Set) (pressure int, path []string) {
@@ -51,7 +156,7 @@ func findBestPressurePath(start string, paths shortestPaths, rates ValveRates, t
     if rate <= 0 && start != "AA" {
         return 0, []string{}
     }
-    newVisited := set.New(start).Union(opened)
+    newVisited := set.New(start).Union(visited)
 
     valveOpened := util.IIf(rate > 0, 1, 0)
 
