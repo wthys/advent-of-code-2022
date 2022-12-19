@@ -22,6 +22,14 @@ func NotImplemented() (string, error) {
     return Unsolved, ErrNotImplemented
 }
 
+func Solved[T any](value T) (string, error) {
+    return fmt.Sprintf("%v", value), nil
+}
+
+func Error(err error) (string, error) {
+    return Unsolved, err
+}
+
 
 type Day int
 
@@ -43,7 +51,7 @@ func Register(solver Solver) {
     }
 
     name := solver.Day()
-    
+
     if _, dup := solvers[name]; dup {
         panic(fmt.Errorf("puzzle: Register called twice for solver [%s]", name))
     }
