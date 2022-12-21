@@ -8,6 +8,7 @@ import (
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/util"
     "github.com/wthys/advent-of-code-2022/collections/set"
+    pf "github.com/wthys/advent-of-code-2022/pathfinding"
 )
 
 type solution struct{}
@@ -49,6 +50,12 @@ func (s solution) Part2(input []string) (string, error) {
 
     return strconv.Itoa(pressure), nil
 }
+
+type (
+    TunnelMap map[string][]string
+    ValveRates map[string]int
+    shortestPaths map[string](map[string][]string)
+)
 
 func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates ValveRates, timeLeft []int, visited *set.Set[string]) (pressure int, routes [][]string) {
     if timeLeft[0] <= 0 && timeLeft[1] <= 0 {
@@ -181,13 +188,6 @@ func findBestPressurePath(start string, paths shortestPaths, rates ValveRates, t
     return
 }
 
-
-
-type (
-    TunnelMap map[string][]string
-    ValveRates map[string]int
-)
-
 func calculatePaths(tunnels TunnelMap, rates ValveRates) shortestPaths {
     relevantValves := []string{}
     allValves := []string{}
@@ -209,12 +209,12 @@ func calculatePaths(tunnels TunnelMap, rates ValveRates) shortestPaths {
             paths[start] = map[string][]string{}
         }
 
-        _, prev := dijkstra(allValves, start, neejbers)
+        dijkstra := pf.ConstructDijkstra(allValves, start, neejbers)
         for _, end := range relevantValves {
             if start == end {
                 continue
             }
-            path := shortestPathFromDijkstra(prev, start, end)
+            path := dijkstra.ShortestPathTo(end)
             if path == nil {
                 continue
             }
@@ -252,92 +252,4 @@ func parseInput(input []string) (TunnelMap, ValveRates, error) {
     }
 
     return tunnels, rates, nil
-}
-
-type (
-    distMap map[string]int
-    prevMap map[string]string
-    shortestPaths map[string](map[string][]string)
-)
-
-var (
-    undefined = ""
-    infinite = 1_000_000_000
-)
-
-func dijkstra(nodes []string, start string, neejbers func(string) []string) (distMap, prevMap) {
-    dist := distMap{}
-    prev := prevMap{}
-    queue := []string{}
-    visited := set.New[string]()
-
-    for _, loc := range nodes {
-        dist[loc] = infinite
-        prev[loc] = undefined
-        queue = append(queue, loc)
-    }
-
-    dist[start] = 0
-
-    for len(queue) > 0 {
-        i, node := closest(queue, dist)
-        queue = append(queue[:i], queue[i+1:]...)
-        visited.Add(node)
-
-        for _, neejber := range neejbers(node) {
-            if visited.Has(neejber) {
-                continue
-            }
-            alt := dist[node] + 1
-            if alt < dist[neejber] {
-                dist[neejber] = alt
-                prev[neejber] = node
-            }
-        }
-    }
-
-    return dist, prev
-}
-
-func shortestPathFromDijkstra(prev prevMap, start, end string) []string {
-    path := []string{}
-    node := end
-    for node != start && node != undefined {
-        path = append([]string{node}, path...)
-        node = prev[node]
-    }
-    if node == undefined {
-        return nil
-    }
-
-    return path
-}
-
-func findShortestPath(nodes []string, start, end string, neejbers func(string) []string) ([]string, error) {
-
-    _, prev := dijkstra(nodes, start, neejbers)
-
-    path := shortestPathFromDijkstra(prev, start, end)
-    if path == nil {
-        return nil, fmt.Errorf("could not find a path from %v to %v", start, end)
-    }
-
-    return path, nil
-}
-
-func closest(Q []string, dist distMap) (int, string) {
-    shortest := infinite+1
-    si := -1
-    sloc := ""
-
-    for i, loc := range Q {
-        d := dist[loc]
-        if d < shortest {
-            shortest = d
-            si = i
-            sloc = loc
-        }
-    }
-
-    return si, sloc
 }

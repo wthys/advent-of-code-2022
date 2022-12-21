@@ -4,10 +4,10 @@ import (
     "fmt"
     "strings"
 
-    "github.com/wthys/advent-of-code-2022/collections/set"
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/grid"
     "github.com/wthys/advent-of-code-2022/location"
+    pf "github.com/wthys/advent-of-code-2022/pathfinding"
 )
 
 type solution struct{}
@@ -35,7 +35,7 @@ func (s solution) Part1(input []string) (string, error) {
         return findNeejbersUp(g, loc)
     }
 
-    path, err := findShortestPath(nodes, start, end, neejbers)
+    path, err := pf.ShortestPath(nodes, start, end, neejbers)
     if err != nil {
         return "", err
     }
@@ -64,19 +64,20 @@ func (s solution) Part2(input []string) (string, error) {
         return findNeejbersDown(g, loc)
     }
 
-    dist, prev := dijkstra(nodes, end, neejbers)
+    dijkstra := pf.ConstructDijkstra(nodes, end, neejbers)
 
-    shortest := infinite+1
-    sloc := undefined
+    shortest := pf.INFINITE
+    sloc := location.New(0,0)
     for _, cand := range candidates {
-        if dist[cand] < shortest {
-            shortest = dist[cand]
+        dist := dijkstra.ShortestPathLengthTo(cand)
+        if dist < shortest {
+            shortest = dist
             sloc = cand
         }
     }
 
 
-    path := shortestPathFromDijkstra(prev, end, sloc)
+    path := dijkstra.ShortestPathTo(sloc)
     if path == nil {
         return "", fmt.Errorf("no path found")
     }
@@ -128,93 +129,6 @@ func printPath(g *grid.Grid[string], path []location.Location) {
         }
         fmt.Println()
     }
-}
-
-type (
-    distMap map[location.Location]int
-    prevMap map[location.Location]location.Location
-)
-
-var (
-    undefined = location.New(-1337,-1337)
-    infinite = 1_000_000_000
-)
-
-func dijkstra(nodes []location.Location, start location.Location, neejbers func(location.Location) []location.Location) (distMap, prevMap) {
-    dist := distMap{}
-    prev := prevMap{}
-    queue := []location.Location{}
-    visited := set.New[location.Location]()
-
-    for _, loc := range nodes {
-        dist[loc] = infinite
-        prev[loc] = undefined
-        queue = append(queue, loc)
-    }
-
-    dist[start] = 0
-
-    for len(queue) > 0 {
-        i, node := closest(queue, dist)
-        queue = append(queue[:i], queue[i+1:]...)
-        visited.Add(node)
-
-        for _, neejber := range neejbers(node) {
-            if visited.Has(neejber) {
-                continue
-            }
-            alt := dist[node] + 1
-            if alt < dist[neejber] {
-                dist[neejber] = alt
-                prev[neejber] = node
-            }
-        }
-    }
-
-    return dist, prev
-}
-
-func shortestPathFromDijkstra(prev prevMap, start, end location.Location) []location.Location {
-    path := []location.Location{}
-    node := end
-    for node != start && node != undefined {
-        path = append([]location.Location{node}, path...)
-        node = prev[node]
-    }
-    if node == undefined {
-        return nil
-    }
-
-    return path
-}
-
-func findShortestPath(nodes []location.Location, start, end location.Location, neejbers func(location.Location) []location.Location) ([]location.Location, error) {
-
-    _, prev := dijkstra(nodes, start, neejbers)
-
-    path := shortestPathFromDijkstra(prev, start, end)
-    if path == nil {
-        return nil, fmt.Errorf("could not find a path from %v to %v", start, end)
-    }
-
-    return path, nil
-}
-
-func closest(Q []location.Location, dist map[location.Location]int) (int, location.Location) {
-    shortest := infinite+1
-    si := -1
-    sloc := location.New(0,0)
-
-    for i, loc := range Q {
-        d := dist[loc]
-        if d < shortest {
-            shortest = d
-            si = i
-            sloc = loc
-        }
-    }
-
-    return si, sloc
 }
 
 func heightDiff(start, target string) int {
