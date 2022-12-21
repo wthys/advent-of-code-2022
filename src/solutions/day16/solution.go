@@ -24,31 +24,27 @@ func (s solution) Day() string {
 func (s solution) Part1(input []string) (string, error) {
     tunnels, rates, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     paths := calculatePaths(tunnels, rates)
 
     pressure, _ := findBestPressurePath("AA", paths, rates, 30, set.New[string]())
 
-    return strconv.Itoa(pressure), nil
+    return solver.Solved(pressure)
 }
 
 func (s solution) Part2(input []string) (string, error) {
     tunnels, rates, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     paths := calculatePaths(tunnels, rates)
 
-    pressure, routes := findBestCombinedPressurePaths([]string{"AA","AA"}, paths, rates, []int{26,26}, set.New[string]())
+    pressure, _ := findBestCombinedPressurePaths([]string{"AA","AA"}, paths, rates, []int{26,26}, set.New[string]())
 
-    for _, route := range routes {
-        fmt.Println(route)
-    }
-
-    return strconv.Itoa(pressure), nil
+    return solver.Solved(pressure)
 }
 
 type (

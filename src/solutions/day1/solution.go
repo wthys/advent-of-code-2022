@@ -69,7 +69,7 @@ func (s solution) Part1(input []string) (string, error) {
     elves, err := parseInput(input)
 
     if err != nil {
-          return solver.Unsolved, err
+          return solver.Error(err)
     }
 
     var best int = elves[0].TotalCalories()
@@ -83,7 +83,7 @@ func (s solution) Part1(input []string) (string, error) {
 
     }
 
-    return fmt.Sprintf("%v", best), nil
+    return solver.Solved(best)
 }
 
 func (s solution) Part2(input []string) (string, error) {
@@ -91,16 +91,15 @@ func (s solution) Part2(input []string) (string, error) {
     elves, err := parseInput(input)
 
     if err != nil {
-        return solver.Unsolved, err
+        return solver.Error(err)
     }
 
     top := elves[:]
     sort.SliceStable(top, func(i, j int) bool {
         return top[i].TotalCalories() > top[j].TotalCalories()
-
     })
 
     total := top[0].TotalCalories() + top[1].TotalCalories() + top[2].TotalCalories()
 
-    return fmt.Sprintf("%v", total), nil
+    return solver.Solved(total)
 }

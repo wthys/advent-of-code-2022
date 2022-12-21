@@ -29,7 +29,7 @@ func (s solution) Part1(input []string) (string, error) {
     program, err := parseInput(cp, input)
 
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     signal := 0
@@ -50,7 +50,7 @@ func (s solution) Part1(input []string) (string, error) {
 
     cp.Execute(program)
 
-    return strconv.Itoa(signal), nil
+    return solver.Solved(signal)
 }
 
 func (s solution) Part2(input []string) (string, error) {
@@ -59,7 +59,7 @@ func (s solution) Part2(input []string) (string, error) {
     program, err := parseInput(cp, input)
 
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     crt := [][]rune{}
@@ -91,7 +91,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     message := blockoutput.FromBlockLetters(crt)
 
-    return message, nil
+    return solver.Solved(message)
 }
 
 

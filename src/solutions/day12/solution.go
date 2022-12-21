@@ -37,13 +37,13 @@ func (s solution) Part1(input []string) (string, error) {
 
     path, err := pf.ShortestPath(nodes, start, end, neejbers)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     //fmt.Println("-= part1 =-")
     //printPath(g, path)
 
-    return fmt.Sprint(len(path)), nil
+    return solver.Solved(len(path))
 }
 
 func (s solution) Part2(input []string) (string, error) {
@@ -79,7 +79,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     path := dijkstra.ShortestPathTo(sloc)
     if path == nil {
-        return "", fmt.Errorf("no path found")
+        return solver.Error(fmt.Errorf("no path found"))
     }
 
     rpath := []location.Location{}
@@ -90,7 +90,7 @@ func (s solution) Part2(input []string) (string, error) {
     //fmt.Println("-= part2 =-")
     //printPath(g, rpath)
 
-    return fmt.Sprint(shortest), nil
+    return solver.Solved(shortest)
 }
 
 func printPath(g *grid.Grid[string], path []location.Location) {

@@ -25,7 +25,7 @@ func (s solution) Day() string {
 func (s solution) Part1(input []string) (string, error) {
     pairs, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
 
@@ -78,13 +78,13 @@ func (s solution) Part1(input []string) (string, error) {
     }
 
 
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }
 
 func (s solution) Part2(input []string) (string, error) {
     pairs, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
 
@@ -124,7 +124,7 @@ func (s solution) Part2(input []string) (string, error) {
     }
 
     freq := TuningFrequency(distressbeacon)
-    return strconv.Itoa(freq), nil
+    return solver.Solved(freq)
 }
 
 type (

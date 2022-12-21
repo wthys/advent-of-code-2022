@@ -2,7 +2,6 @@ package day2
 
 import (
     "strings"
-    "strconv"
     "fmt"
 
     "github.com/wthys/advent-of-code-2022/solver"
@@ -145,14 +144,14 @@ func (s solution) Part1(input []string) (string, error) {
 
     rounds, err := parseRounds(input)
     if err != nil {
-        return solver.Unsolved, err
+        return solver.Error(err)
     }
 
     for _, round := range rounds {
         score += round.Score()
     }
 
-    return strconv.Itoa(score), nil
+    return solver.Solved(score)
 }
 
 func (s solution) Part2(input []string) (string, error) {
@@ -160,12 +159,12 @@ func (s solution) Part2(input []string) (string, error) {
 
     rounds, err := parseRounds(input)
     if err != nil {
-        return solver.Unsolved, err
+        return solver.Error(err)
     }
 
     for _, round := range rounds {
         score += round.Score2()
     }
 
-    return strconv.Itoa(score), nil
+    return solver.Solved(score)
 }

@@ -130,7 +130,7 @@ func (s solution) Part1(input []string) (string, error) {
         }
     }
 
-    return getMessage(stacks), nil
+    return solver.Solved(getMessage(stacks))
 }
 
 func (s solution) Part2(input []string) (string, error) {
@@ -146,5 +146,5 @@ func (s solution) Part2(input []string) (string, error) {
         }
     }
 
-    return getMessage(stacks), nil
+    return solver.Solved(getMessage(stacks))
 }

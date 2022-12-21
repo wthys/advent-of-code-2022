@@ -1,8 +1,6 @@
 package day6
 
 import (
-    "fmt"
-
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/collections/set"
 )
@@ -36,7 +34,7 @@ func (s solution) Part1(input []string) (string, error) {
 
     for i := 0; i < len(data)-PacketStart; i++ {
         if isStartPacket(data, i, PacketStart) {
-            return fmt.Sprintf("%v", i+PacketStart), nil
+            return solver.Solved(i+PacketStart)
         }
     }
 
@@ -48,7 +46,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     for i := 0; i < len(data)-MessageStart; i++ {
         if isStartPacket(data, i, MessageStart) {
-            return fmt.Sprintf("%v", i+MessageStart), nil
+            return solver.Solved(i+MessageStart)
         }
     }
 

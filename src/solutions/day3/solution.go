@@ -2,7 +2,6 @@ package day3
 
 import (
     "fmt"
-    "strconv"
     "strings"
 
     "github.com/wthys/advent-of-code-2022/solver"
@@ -74,7 +73,7 @@ func (s solution) Part1(input []string) (string, error) {
 
     rucksacks, err := parseInput(input)
     if err != nil {
-        return solver.Unsolved, err
+        return solver.Error(err)
     }
 
     total := 0
@@ -85,7 +84,7 @@ func (s solution) Part1(input []string) (string, error) {
         total += prio
     }
 
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }
 
 
@@ -103,7 +102,7 @@ func findBadge(r1, r2, r3 Rucksack) string {
 func (s solution) Part2(input []string) (string, error) {
     rucksacks, err := parseInput(input)
     if err != nil {
-        return solver.Unsolved, err
+        return solver.Error(err)
     }
 
     total := 0
@@ -114,5 +113,5 @@ func (s solution) Part2(input []string) (string, error) {
         com := findBadge(r1, r2, r3)
         total += getPriority(com)
     }
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }

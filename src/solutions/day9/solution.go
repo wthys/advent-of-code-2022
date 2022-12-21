@@ -23,20 +23,20 @@ func (s solution) Day() string {
 func (s solution) Part1(input []string) (string, error) {
     moves, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     knots := []loc.Location{loc.New(0,0), loc.New(0,0)}
 
     total := Simulate(knots, moves)
 
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }
 
 func (s solution) Part2(input []string) (string, error) {
     moves, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     knots := []loc.Location{}
@@ -46,7 +46,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     total := Simulate(knots, moves)
 
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }
 
 type Move struct {

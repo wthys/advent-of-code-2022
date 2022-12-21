@@ -21,7 +21,7 @@ func (s solution) Part1(input []string) (string, error) {
     g, err := parseInput(input)
 
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     visible := 0
@@ -47,14 +47,14 @@ func (s solution) Part1(input []string) (string, error) {
 
     g.Apply(vis)
 
-    return strconv.Itoa(visible), nil
+    return solver.Solved(visible)
 }
 
 func (s solution) Part2(input []string) (string, error) {
     g, err := parseInput(input)
 
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     best := 0
@@ -86,7 +86,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     g.Apply(scenicScore)
 
-    return strconv.Itoa(best), nil
+    return solver.Solved(best)
 }
 
 
@@ -133,6 +133,6 @@ func viewingDistance(g *grid.Grid[int], loc location.Location, height int, dir l
     if err != nil && i == 1 {
         return 0
     }
-    
+
     return i-1
 }

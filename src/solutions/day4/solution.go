@@ -74,7 +74,7 @@ func (s solution) Part1(input []string) (string, error) {
             total += 1
         }
     }
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }
 
 func (s solution) Part2(input []string) (string, error) {
@@ -86,5 +86,5 @@ func (s solution) Part2(input []string) (string, error) {
             total += 1
         }
     }
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }

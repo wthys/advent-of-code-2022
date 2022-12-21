@@ -83,7 +83,7 @@ func parseInput(input []string) (*Directory, error) {
 func (s solution) Part1(input []string) (string, error) {
     root, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     total := 0
@@ -102,13 +102,13 @@ func (s solution) Part1(input []string) (string, error) {
 
     //TreePrint(root)
 
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }
 
 func (s solution) Part2(input []string) (string, error) {
     root, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     free := 70_000_000 - root.Size()
@@ -135,5 +135,5 @@ func (s solution) Part2(input []string) (string, error) {
     //fmt.Printf("smallest dir is (%v, %v): %v\n", smallest_dir.Path(), smallest_dir, smallest)
 
 
-    return strconv.Itoa(smallest), nil
+    return solver.Solved(smallest)
 }

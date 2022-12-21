@@ -23,7 +23,7 @@ func (s solution) Day() string {
 func (s solution) Part1(input []string) (string, error) {
     monkeys, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
 
@@ -58,13 +58,13 @@ func (s solution) Part1(input []string) (string, error) {
 
     business := values[0] * values[1]
 
-    return fmt.Sprint(business), nil
+    return solver.Solved(business)
 }
 
 func (s solution) Part2(input []string) (string, error) {
     monkeys, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     // Setup listener
@@ -120,7 +120,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     business := values[0] * values[1]
 
-    return fmt.Sprint(business), nil
+    return solver.Solved(business)
 }
 
 type (

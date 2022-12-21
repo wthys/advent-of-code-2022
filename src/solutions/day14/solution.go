@@ -26,7 +26,7 @@ func (s solution) Part1(input []string) (string, error) {
 
     paths, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     g := prepareGrid(paths)
@@ -51,14 +51,14 @@ func (s solution) Part1(input []string) (string, error) {
         //g.Print()
     }
 
-    return strconv.Itoa(n), nil
+    return solver.Solved(n)
 }
 
 func (s solution) Part2(input []string) (string, error) {
 
     paths, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     g := prepareGrid(paths)
@@ -84,7 +84,7 @@ func (s solution) Part2(input []string) (string, error) {
         g.Set(rest, "o")
     }
 
-    return strconv.Itoa(n+1), nil
+    return solver.Solved(n+1)
 }
 
 type (

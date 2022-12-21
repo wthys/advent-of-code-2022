@@ -2,7 +2,6 @@ package day13
 
 import (
     "strings"
-    "strconv"
     "fmt"
     "sort"
 
@@ -24,7 +23,7 @@ func (s solution) Day() string {
 func (s solution) Part1(input []string) (string, error) {
     pairs, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     total := 0
@@ -34,13 +33,13 @@ func (s solution) Part1(input []string) (string, error) {
         }
     }
 
-    return strconv.Itoa(total), nil
+    return solver.Solved(total)
 }
 
 func (s solution) Part2(input []string) (string, error) {
     pairs, err := parseInput(input)
     if err != nil {
-        return "", err
+        return solver.Error(err)
     }
 
     items := []item.Item{}
@@ -63,7 +62,7 @@ func (s solution) Part2(input []string) (string, error) {
         }
     }
 
-    return strconv.Itoa(decoderKey), nil
+    return solver.Solved(decoderKey)
 }
 
 type (
