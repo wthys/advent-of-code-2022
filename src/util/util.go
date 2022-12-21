@@ -89,3 +89,41 @@ func PairWiseDo[T any](values []T, doer func(a, b T)) {
         prev = val
     }
 }
+
+func Max[T Number](values ...T) T {
+    if len(values) == 0 {
+        panic("need at least one value")
+    }
+    best := values[0]
+
+    if len(values) == 1 {
+        return best
+    }
+
+    for _, value := range values[1:] {
+        if value > best {
+            best = value
+        }
+    }
+
+    return best
+}
+
+func Min[T Number](values ...T) T {
+    if len(values) == 0 {
+        panic("need at least one value")
+    }
+    best := values[0]
+
+    if len(values) == 1 {
+        return best
+    }
+
+    for _, value := range values[1:] {
+        if value < best {
+            best = value
+        }
+    }
+
+    return best
+}
