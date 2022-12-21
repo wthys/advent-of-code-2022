@@ -1,4 +1,9 @@
-package collections
+package set
+
+import (
+    "fmt"
+    "strings"
+)
 
 type (
     empty struct{}
@@ -10,12 +15,32 @@ type (
     SetDoFunction[T comparable] func(value T) bool
 )
 
-func NewSet[T comparable](values ...T) *Set[T] {
+func New[T comparable](values ...T) *Set[T] {
     set := Set[T]{map[T]empty{}}
     for _, value := range values {
         set.Add(value)
     }
     return &set
+}
+
+func (s Set[T]) String() string {
+    str := strings.Builder{}
+    fmt.Fprint(&str, "<")
+    s.Do(func(value T) bool {
+        fmt.Fprintf(&str, " %v", value)
+        return true
+    })
+    fmt.Fprint(&str, " >")
+    return str.String()
+}
+
+func (s Set[T]) Values() []T {
+    vals := []T{}
+    s.Do(func(value T) bool {
+        vals = append(vals, value)
+        return true
+    })
+    return vals
 }
 
 func (s *Set[T]) Add(value T) *Set[T] {
@@ -38,7 +63,7 @@ func (s *Set[T]) Remove(value T) *Set[T] {
 }
 
 func (s Set[T]) Intersect(other *Set[T]) *Set[T] {
-    common := NewSet[T]()
+    common := New[T]()
 
     s.Do(func(value T) bool {
         if other.Has(value) {
@@ -51,7 +76,7 @@ func (s Set[T]) Intersect(other *Set[T]) *Set[T] {
 }
 
 func (s Set[T]) Union(other *Set[T]) *Set[T] {
-    union := NewSet[T]()
+    union := New[T]()
     adder := func(value T) bool {
         union.Add(value)
         return true
@@ -64,7 +89,7 @@ func (s Set[T]) Union(other *Set[T]) *Set[T] {
 }
 
 func (s Set[T]) Subtract(other *Set[T]) *Set[T] {
-    sub := NewSet[T]()
+    sub := New[T]()
 
     s.Do(func(value T) bool {
         if !other.Has(value) {

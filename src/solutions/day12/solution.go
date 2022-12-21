@@ -3,8 +3,8 @@ package day12
 import (
     "fmt"
     "strings"
-    "github.com/golang-collections/collections/set"
 
+    "github.com/wthys/advent-of-code-2022/collections/set"
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/grid"
     "github.com/wthys/advent-of-code-2022/location"
@@ -144,7 +144,7 @@ func dijkstra(nodes []location.Location, start location.Location, neejbers func(
     dist := distMap{}
     prev := prevMap{}
     queue := []location.Location{}
-    visited := set.New()
+    visited := set.New[location.Location]()
 
     for _, loc := range nodes {
         dist[loc] = infinite
@@ -157,7 +157,7 @@ func dijkstra(nodes []location.Location, start location.Location, neejbers func(
     for len(queue) > 0 {
         i, node := closest(queue, dist)
         queue = append(queue[:i], queue[i+1:]...)
-        visited.Insert(node)
+        visited.Add(node)
 
         for _, neejber := range neejbers(node) {
             if visited.Has(neejber) {

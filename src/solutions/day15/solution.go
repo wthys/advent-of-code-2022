@@ -5,8 +5,7 @@ import (
     "regexp"
     "strconv"
 
-    "github.com/golang-collections/collections/set"
-
+    "github.com/wthys/advent-of-code-2022/collections/set"
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/grid"
     "github.com/wthys/advent-of-code-2022/location"
@@ -30,12 +29,12 @@ func (s solution) Part1(input []string) (string, error) {
     }
 
 
-    poi := set.New()
+    poi := set.New[location.Location]()
     leftmost := 0
     rightmost := 0
     for _, pair := range pairs {
-        poi.Insert(pair.Beacon)
-        poi.Insert(pair.Sensor)
+        poi.Add(pair.Beacon)
+        poi.Add(pair.Sensor)
 
         left  := pair.Sensor.Add(location.New(-pair.Distance(), 0))
         right := pair.Sensor.Add(location.New(pair.Distance(), 0))

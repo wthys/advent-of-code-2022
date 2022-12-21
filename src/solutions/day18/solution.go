@@ -3,10 +3,9 @@ package day18
 import (
     "fmt"
 
-    "github.com/golang-collections/collections/set"
-
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/location"
+    "github.com/wthys/advent-of-code-2022/collections/set"
 )
 
 type solution struct{}
@@ -81,23 +80,16 @@ func (s solution) Part2(input []string) (string, error) {
         //printSet(vol, 6)
 
         outside := false
-        vol.Do(func(el interface{}) {
-            if outside {
-                return
-            }
-
-            loc, ok := el.(location.Location3)
-            if !ok {
-                return
-            }
-
+        vol.Do(func(loc location.Location3) bool {
             xborder := loc.X == xlo-1 || loc.X == xhi+1
             yborder := loc.Y == ylo-1 || loc.Y == yhi+1
             zborder := loc.Z == zlo-1 || loc.Z == zhi+1
 
             if xborder || yborder || zborder {
                 outside = true
+                return false
             }
+            return true
         })
 
         if outside {
@@ -105,13 +97,9 @@ func (s solution) Part2(input []string) (string, error) {
             continue
         }
 
-        vol.Do(func(el interface{}) {
-            loc, ok := el.(location.Location3)
-            if !ok {
-                return
-            }
-
+        vol.Do(func(loc location.Location3) bool {
             grid.Add(loc)
+            return true
         })
     }
 
@@ -128,17 +116,18 @@ type (
     Grid3 map[location.Location3]int
 )
 
-func printSet(s *set.Set, limit int) {
+func printSet[T comparable](s *set.Set[T], limit int) {
     n := 0
     more := false
     fmt.Print("{")
-    s.Do(func(el interface{}) {
+    s.Do(func(value T) bool {
         n += 1
         if n > limit && limit > 0 {
             more = true
-            return
+            return true
         }
-        fmt.Printf(" %v", el)
+        fmt.Printf(" %v", value)
+        return true
     })
 
     fmt.Print(" ")
@@ -148,42 +137,33 @@ func printSet(s *set.Set, limit int) {
     fmt.Println("}")
 }
 
-func contiguousVolumes(grid *Grid3) []*set.Set {
-    volumes := []*set.Set{}
+func contiguousVolumes(grid *Grid3) []*set.Set[location.Location3] {
+    volumes := []*set.Set[location.Location3]{}
 
     grid.Do(func(loc location.Location3, _ int) error {
-        bordering := set.New()
+        bordering := set.New[int]()
         for _, neejber := range neejbers3(loc) {
             for i, vol := range volumes {
                 if vol.Has(neejber) {
-                    bordering.Insert(i)
+                    bordering.Add(i)
                 }
             }
         }
 
-        idxes := []int{}
-        bordering.Do(func(el interface{}) {
-            i, ok := el.(int)
-            if !ok {
-                return
-            }
-
-            idxes = append(idxes, i)
-        })
-
-
-        switch len(idxes) {
+        switch bordering.Len() {
         case 0:
             volumes = append(volumes, set.New(loc))
         case 1:
-            volumes[idxes[0]].Insert(loc)
+            idx := bordering.Values()[0]
+            volumes[idx].Add(loc)
         default:
             mergedVolume := set.New(loc)
-            for _, idx := range idxes {
+            bordering.Do(func(idx int) bool {
                 mergedVolume = mergedVolume.Union(volumes[idx])
-            }
+                return true
+            })
 
-            newVolumes := []*set.Set{}
+            newVolumes := []*set.Set[location.Location3]{}
             replaced := false
             for i, vol := range volumes {
                 if bordering.Has(i) {

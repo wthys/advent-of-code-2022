@@ -5,10 +5,9 @@ import (
     "regexp"
     "strconv"
 
-    "github.com/golang-collections/collections/set"
-
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/util"
+    "github.com/wthys/advent-of-code-2022/collections/set"
 )
 
 type solution struct{}
@@ -29,7 +28,7 @@ func (s solution) Part1(input []string) (string, error) {
 
     paths := calculatePaths(tunnels, rates)
 
-    pressure, _ := findBestPressurePath("AA", paths, rates, 30, set.New())
+    pressure, _ := findBestPressurePath("AA", paths, rates, 30, set.New[string]())
 
     return strconv.Itoa(pressure), nil
 }
@@ -42,7 +41,7 @@ func (s solution) Part2(input []string) (string, error) {
 
     paths := calculatePaths(tunnels, rates)
 
-    pressure, routes := findBestCombinedPressurePaths([]string{"AA","AA"}, paths, rates, []int{26,26}, set.New())
+    pressure, routes := findBestCombinedPressurePaths([]string{"AA","AA"}, paths, rates, []int{26,26}, set.New[string]())
 
     for _, route := range routes {
         fmt.Println(route)
@@ -51,7 +50,7 @@ func (s solution) Part2(input []string) (string, error) {
     return strconv.Itoa(pressure), nil
 }
 
-func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates ValveRates, timeLeft []int, visited *set.Set) (pressure int, routes [][]string) {
+func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates ValveRates, timeLeft []int, visited *set.Set[string]) (pressure int, routes [][]string) {
     if timeLeft[0] <= 0 && timeLeft[1] <= 0 {
         return 0, [][]string{[]string{}, []string{}}
     }
@@ -60,7 +59,7 @@ func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates Va
         return 0, [][]string{[]string{}, []string{}}
     }
 
-    newVisited := set.New().Union(visited)
+    newVisited := set.New[string]().Union(visited)
 
     youdone, eledone := start[0] == "", start[1] == ""
 
@@ -68,7 +67,7 @@ func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates Va
 
     if timeLeft[0] > 0 && !youdone {
         rate := rates[start[0]]
-        newVisited.Insert(start[0])
+        newVisited.Add(start[0])
         if rate > 0 {
             timeLeft[0] -= 1
             pressure += timeLeft[0] * rate
@@ -77,7 +76,7 @@ func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates Va
 
     if timeLeft[1] > 0 && !eledone {
         rate := rates[start[1]]
-        newVisited.Insert(start[1])
+        newVisited.Add(start[1])
         if rate > 0 {
             timeLeft[1] -= 1
             pressure += timeLeft[1] * rate
@@ -143,7 +142,7 @@ func findBestCombinedPressurePaths(start []string, paths shortestPaths, rates Va
     }
 }
 
-func findBestPressurePath(start string, paths shortestPaths, rates ValveRates, timeLeft int, visited *set.Set) (pressure int, path []string) {
+func findBestPressurePath(start string, paths shortestPaths, rates ValveRates, timeLeft int, visited *set.Set[string]) (pressure int, path []string) {
     if timeLeft <= 0 {
         return 0, []string{}
     }
@@ -270,7 +269,7 @@ func dijkstra(nodes []string, start string, neejbers func(string) []string) (dis
     dist := distMap{}
     prev := prevMap{}
     queue := []string{}
-    visited := set.New()
+    visited := set.New[string]()
 
     for _, loc := range nodes {
         dist[loc] = infinite
@@ -283,7 +282,7 @@ func dijkstra(nodes []string, start string, neejbers func(string) []string) (dis
     for len(queue) > 0 {
         i, node := closest(queue, dist)
         queue = append(queue[:i], queue[i+1:]...)
-        visited.Insert(node)
+        visited.Add(node)
 
         for _, neejber := range neejbers(node) {
             if visited.Has(neejber) {

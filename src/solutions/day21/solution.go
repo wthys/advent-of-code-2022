@@ -7,7 +7,7 @@ import (
 
     "github.com/wthys/advent-of-code-2022/solver"
     "github.com/wthys/advent-of-code-2022/util"
-    "github.com/wthys/advent-of-code-2022/collections"
+    "github.com/wthys/advent-of-code-2022/collections/set"
 
 )
 
@@ -27,7 +27,7 @@ func (s solution) Part1(input []string) (string, error) {
         return solver.Error(err)
     }
 
-    yelled := collections.NewSet[string]()
+    yelled := set.New[string]()
 
     notifyMonkeys := func(name string, number int) {
         for _, monkey := range monkeys {
@@ -81,7 +81,7 @@ func (s solution) Part2(input []string) (string, error) {
         order[name] = n
     }
 
-    determined := collections.NewSet[string]()
+    determined := set.New[string]()
     maxOrder := 0
 
     for determined.Len() < len(monkeys) {

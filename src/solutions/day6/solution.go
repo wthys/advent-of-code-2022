@@ -2,8 +2,9 @@ package day6
 
 import (
     "fmt"
-    "github.com/golang-collections/collections/set"
+
     "github.com/wthys/advent-of-code-2022/solver"
+    "github.com/wthys/advent-of-code-2022/collections/set"
 )
 
 type solution struct{}
@@ -22,9 +23,9 @@ const (
 )
 
 func isStartPacket(data string, index, length int) bool {
-    check := set.New()
+    check := set.New[rune]()
     for _, c := range data[index:index+length] {
-        check.Insert(c)
+        check.Add(c)
     }
     return check.Len() == length
 }
