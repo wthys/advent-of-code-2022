@@ -160,6 +160,14 @@ func (b *Bounds) Contains(loc location.Location) bool {
     return loc.X >= b.Xmin && loc.X <= b.Xmax && loc.Y >= b.Ymin && loc.Y <= b.Ymax
 }
 
+func (b Bounds) Width() int {
+    return b.Xmax - b.Xmin + 1
+}
+
+func (b Bounds) Height() int {
+    return b.Ymax - b.Ymin + 1
+}
+
 func (b Bounds) Apply(apply func(loc location.Location)) {
     for y := b.Ymin; y <= b.Ymax; y++ {
         for x := b.Xmin; x <= b.Xmax; x++ {
