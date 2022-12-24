@@ -169,12 +169,6 @@ func pruneGrid(g *grid.Grid[string], maxHeight int) error {
 
     //fmt.Printf("searching route from %v -> %v    \r", topleft, topright)
     // find a route from left to right
-    allLocs := []location.Location{}
-    g.Apply(func(loc location.Location, value string) {
-        if value == "#" {
-            allLocs = append(allLocs, loc)
-        }
-    })
 
     neejbers := func(loc location.Location) []location.Location {
         nbh := []location.Location{}
@@ -195,7 +189,7 @@ func pruneGrid(g *grid.Grid[string], maxHeight int) error {
         return nbh
     }
 
-    path, err := pf.ShortestPath(allLocs, topleft, topright, neejbers)
+    path, err := pf.ShortestPath(topleft, topright, neejbers)
     if err != nil {
         return err
     }

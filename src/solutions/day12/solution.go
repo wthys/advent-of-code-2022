@@ -25,17 +25,11 @@ func (s solution) Part1(input []string) (string, error) {
 
     start, end := findStartAndEnd(g)
 
-    nodes := []location.Location{}
-
-    g.Apply(func(loc location.Location, _ string) {
-        nodes = append(nodes, loc)
-    })
-
     neejbers := func(loc location.Location) []location.Location {
         return findNeejbersUp(g, loc)
     }
 
-    path, err := pf.ShortestPath(nodes, start, end, neejbers)
+    path, err := pf.ShortestPath(start, end, neejbers)
     if err != nil {
         return solver.Error(err)
     }
@@ -52,9 +46,7 @@ func (s solution) Part2(input []string) (string, error) {
     start, end := findStartAndEnd(g)
 
     candidates := []location.Location{start}
-    nodes := []location.Location{}
     g.Apply(func(loc location.Location, elevation string) {
-        nodes = append(nodes, loc)
         if elevation == "a" {
             candidates = append(candidates, loc)
         }
@@ -64,7 +56,7 @@ func (s solution) Part2(input []string) (string, error) {
         return findNeejbersDown(g, loc)
     }
 
-    dijkstra := pf.ConstructDijkstra(nodes, end, neejbers)
+    dijkstra := pf.ConstructDijkstra(end, neejbers)
 
     shortest := pf.INFINITE
     sloc := location.New(0,0)
@@ -75,7 +67,6 @@ func (s solution) Part2(input []string) (string, error) {
             sloc = cand
         }
     }
-
 
     path := dijkstra.ShortestPathTo(sloc)
     if path == nil {

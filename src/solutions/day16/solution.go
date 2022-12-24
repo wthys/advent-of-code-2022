@@ -186,9 +186,7 @@ func findBestPressurePath(start string, paths shortestPaths, rates ValveRates, t
 
 func calculatePaths(tunnels TunnelMap, rates ValveRates) shortestPaths {
     relevantValves := []string{}
-    allValves := []string{}
     for valve, rate := range rates {
-        allValves = append(allValves, valve)
         if rate > 0 {
             relevantValves = append(relevantValves, valve)
         }
@@ -205,7 +203,7 @@ func calculatePaths(tunnels TunnelMap, rates ValveRates) shortestPaths {
             paths[start] = map[string][]string{}
         }
 
-        dijkstra := pf.ConstructDijkstra(allValves, start, neejbers)
+        dijkstra := pf.ConstructDijkstra(start, neejbers)
         for _, end := range relevantValves {
             if start == end {
                 continue
