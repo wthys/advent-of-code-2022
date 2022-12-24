@@ -7,8 +7,8 @@ import (
 )
 
 type (
-    distMap[T comparable] map[T]int
-    prevMap[T comparable] map[T]*T
+    DistMap[T comparable] map[T]int
+    PrevMap[T comparable] map[T]*T
 
     Dijkstra[T comparable] interface {
         ShortestPathTo(end T) []T
@@ -18,20 +18,64 @@ type (
 
     SimpleDijkstra[T comparable] struct {
         Start T
-        dist distMap[T]
-        prev prevMap[T]
+        dist DistMap[T]
+        prev PrevMap[T]
     }
 
     NeejberFunc[T comparable] func(node T) []T
+    ExitFunc[T comparable] func(node T) bool
 )
 
 const (
     INFINITE = int((^uint(0)) >> 1)
 )
 
+func ControlledDijkstra[T comparable](start T, neejbers NeejberFunc[T], exitters ...ExitFunc[T]) Dijkstra[T] {
+    dist := DistMap[T]{}
+    prev := PrevMap[T]{}
+    visited := set.New[T]()
+
+    prev[start] = nil
+    dist[start] = 0
+    queue := set.New(start)
+
+    for queue.Len() > 0 {
+        node, err := closest(queue, dist)
+        if err != nil {
+            panic(err)
+        }
+        queue = queue.Remove(node)
+        visited.Add(node)
+
+        stop := false
+        for _, exit := range exitters {
+            if exit(node) {
+                stop = true
+            }
+        }
+        if stop { break }
+
+        for _, neejber := range neejbers(node) {
+            if visited.Has(neejber) {
+                continue
+            }
+            queue.Add(neejber)
+            alt := dist[node] + 1
+            ndist, ok := dist[neejber]
+            if !ok || alt < ndist {
+                dist[neejber] = alt
+                prev[neejber] = &node
+            }
+        }
+    }
+
+    return SimpleDijkstra[T]{start, dist, prev}
+
+}
+
 func ConstructDijkstra[T comparable](start T, neejbers NeejberFunc[T]) Dijkstra[T] {
-    dist := distMap[T]{}
-    prev := prevMap[T]{}
+    dist := DistMap[T]{}
+    prev := PrevMap[T]{}
     visited := set.New[T]()
 
     prev[start] = nil
@@ -101,7 +145,7 @@ func (d SimpleDijkstra[T]) ShortestPathLengthTo(end T) int {
 
 func ShortestPath[T comparable](start, end T, neejbers NeejberFunc[T]) ([]T, error) {
 
-    d := ConstructDijkstra(start, neejbers)
+    d := ControlledDijkstra(start, neejbers, func (node T) bool { return node == end })
 
     path := d.ShortestPathTo(end)
     if path == nil {
@@ -111,7 +155,7 @@ func ShortestPath[T comparable](start, end T, neejbers NeejberFunc[T]) ([]T, err
     return path, nil
 }
 
-func closest[T comparable](Q *set.Set[T], dist distMap[T]) (T, error) {
+func closest[T comparable](Q *set.Set[T], dist DistMap[T]) (T, error) {
     shortest := INFINITE
     snode := *new(T)
     found := false
