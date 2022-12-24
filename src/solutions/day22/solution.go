@@ -44,7 +44,7 @@ func (s solution) Part1(input []string) (string, error) {
     pos := mover.Position()
     dir := mover.Direction()
     score := 1000 * pos.Y + 4 * pos.X + scoring[dir]
-    fmt.Printf("scoring -> 1000 * %v + 4 * %v + %v%v = %v\n", pos.Y, pos.X, scoring[dir], dir, score)
+    //fmt.Printf("scoring -> 1000 * %v + 4 * %v + %v%v = %v\n", pos.Y, pos.X, scoring[dir], dir, score)
 
     return solver.Solved(score)
 }
@@ -70,7 +70,7 @@ func (s solution) Part2(input []string) (string, error) {
         //printCubeMover(mover)
     }
 
-    printCubeMover(mover)
+    //printCubeMover(mover)
 
     scoring := map[location.Location]int{
         {1,0}: 0,
@@ -82,7 +82,7 @@ func (s solution) Part2(input []string) (string, error) {
     pos := mover.Position()
     dir := mover.Direction()
     score := 1000 * pos.Y + 4 * pos.X + scoring[dir]
-    fmt.Printf("scoring -> 1000 * %v + 4 * %v + %v%v = %v\n", pos.Y, pos.X, scoring[dir], dir, score)
+    //fmt.Printf("scoring -> 1000 * %v + 4 * %v + %v%v = %v\n", pos.Y, pos.X, scoring[dir], dir, score)
 
     return solver.Solved(score)
 }
@@ -358,7 +358,7 @@ func (g CubeWrappingGrid) nextLocDir(start, dir location.Location) (location.Loc
         return end, dir
     }
 
-    DIRS := map[int]location.Location{
+    DIRECTIONS := map[int]location.Location{
         TOP: location.New(0,-1),
         LEFT: location.New(-1,0),
         BOTTOM: location.New(0,1),
@@ -367,66 +367,66 @@ func (g CubeWrappingGrid) nextLocDir(start, dir location.Location) (location.Loc
 
     dirmap := map[int]map[int]func(loc location.Location) (newloc, newdir location.Location){
         50: {
-            /*
+            /*     0  1  2
              *       +--+--+
-             *       |T |R |
+             *  0    |T |R |
              *       +--+--+
-             *       |F |
+             *  1    |F |
              *    +--+--+
-             *    |L |BO|
+             *  2 |L |BO|
              *    +--+--+
-             *    |BA|
+             *  3 |BA|
              *    +--+
              *
              */
             TOP: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[TOP] {
-                    return location.New(1, 100 + loc.X), DIRS[RIGHT]
+                if dir == DIRECTIONS[TOP] {
+                    return location.New(1, 100 + loc.X), DIRECTIONS[RIGHT]
                 }
 
-                return location.New(1, 151 - loc.Y), DIRS[RIGHT]
+                return location.New(1, 151 - loc.Y), DIRECTIONS[RIGHT]
             },
             FRONT: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[LEFT] {
-                    return location.New(loc.Y - 50, 101), DIRS[BOTTOM]
+                if dir == DIRECTIONS[LEFT] {
+                    return location.New(loc.Y - 50, 101), DIRECTIONS[BOTTOM]
                 }
 
-                return location.New(loc.Y + 50, 50), DIRS[TOP]
+                return location.New(loc.Y + 50, 50), DIRECTIONS[TOP]
             },
             RIGHT: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[TOP] {
-                    return location.New(loc.X - 100, 200), DIRS[TOP]
+                if dir == DIRECTIONS[TOP] {
+                    return location.New(loc.X - 100, 200), DIRECTIONS[TOP]
                 }
-                if dir == DIRS[RIGHT] {
-                    return location.New(100, 51 - loc.Y), DIRS[LEFT]
+                if dir == DIRECTIONS[RIGHT] {
+                    return location.New(100, 151 - loc.Y), DIRECTIONS[LEFT]
                 }
 
-                return location.New(100, loc.X - 50), DIRS[LEFT]
+                return location.New(100, loc.X - 50), DIRECTIONS[LEFT]
             },
             BOTTOM: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[RIGHT] {
-                    return location.New(150, 151 - loc.Y), DIRS[LEFT]
+                if dir == DIRECTIONS[RIGHT] {
+                    return location.New(150, 151 - loc.Y), DIRECTIONS[LEFT]
                 }
 
-                return location.New(50, loc.X + 100), DIRS[LEFT]
+                return location.New(50, loc.X + 100), DIRECTIONS[LEFT]
             },
             LEFT: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[TOP] {
-                    return location.New(51, 150 - loc.X), DIRS[RIGHT]
+                if dir == DIRECTIONS[TOP] {
+                    return location.New(51, 50 + loc.X), DIRECTIONS[RIGHT]
                 }
 
-                return location.New(51, 151 - loc.Y), DIRS[RIGHT]
+                return location.New(51, 151 - loc.Y), DIRECTIONS[RIGHT]
             },
             BACK: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[LEFT] {
-                    return location.New(loc.Y - 100, 1), DIRS[BOTTOM]
+                if dir == DIRECTIONS[LEFT] {
+                    return location.New(loc.Y - 100, 1), DIRECTIONS[BOTTOM]
                 }
 
-                if dir == DIRS[BOTTOM] {
-                    return location.New(loc.X + 100, 1), DIRS[BOTTOM]
+                if dir == DIRECTIONS[BOTTOM] {
+                    return location.New(loc.X + 100, 1), DIRECTIONS[BOTTOM]
                 }
 
-                return location.New(loc.Y - 100, 150), DIRS[TOP]
+                return location.New(loc.Y - 100, 150), DIRECTIONS[TOP]
             },
         },
         4: {
@@ -441,73 +441,77 @@ func (g CubeWrappingGrid) nextLocDir(start, dir location.Location) (location.Loc
              *
              */
             TOP: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[TOP] {
+                if dir == DIRECTIONS[TOP] {
                     diff := loc.X - 12
-                    return location.New(1 - diff, 5), DIRS[BOTTOM]
+                    return location.New(1 - diff, 5), DIRECTIONS[BOTTOM]
                 }
 
-                if dir == DIRS[LEFT] {
+                if dir == DIRECTIONS[LEFT] {
                     diff := loc.Y - 1
-                    return location.New(5 + diff, 5), DIRS[BOTTOM]
+                    return location.New(5 + diff, 5), DIRECTIONS[BOTTOM]
                 }
 
                 diff := loc.Y - 1
-                return location.New(16, 11 - diff), DIRS[LEFT]
+                return location.New(16, 11 - diff), DIRECTIONS[LEFT]
             },
             FRONT: func(loc location.Location) (newloc, newdir location.Location) {
                 diff := loc.Y - 5
-                return location.New(16 - diff, 9), DIRS[BOTTOM]
+                return location.New(16 - diff, 9), DIRECTIONS[BOTTOM]
             },
             RIGHT: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[TOP] {
+                if dir == DIRECTIONS[TOP] {
                     diff := loc.X - 16
-                    return location.New(12, 5 - diff), DIRS[LEFT]
+                    return location.New(12, 5 - diff), DIRECTIONS[LEFT]
                 }
 
-                if dir == DIRS[RIGHT] {
+                if dir == DIRECTIONS[RIGHT] {
                     diff := loc.Y - 9
-                    return location.New(12, 4 - diff), DIRS[LEFT]
+                    return location.New(12, 4 - diff), DIRECTIONS[LEFT]
                 }
 
                 diff := loc.X - 13
-                return location.New(1, 8 - diff), DIRS[RIGHT]
+                return location.New(1, 8 - diff), DIRECTIONS[RIGHT]
             },
             BOTTOM: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[BOTTOM] {
+                if dir == DIRECTIONS[BOTTOM] {
                     diff := loc.X - 9
-                    return location.New(4 - diff, 8), DIRS[TOP]
+                    return location.New(4 - diff, 8), DIRECTIONS[TOP]
                 }
 
                 diff := loc.Y - 9
-                return location.New(8 - diff, 8), DIRS[TOP]
+                return location.New(8 - diff, 8), DIRECTIONS[TOP]
             },
             LEFT: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[TOP] {
+                if dir == DIRECTIONS[TOP] {
                     diff := loc.X - 5
-                    return location.New(9, 1 + diff), DIRS[RIGHT]
+                    return location.New(9, 1 + diff), DIRECTIONS[RIGHT]
                 }
 
                 diff := loc.X - 5
-                return location.New(9, 12 - diff), DIRS[RIGHT]
+                return location.New(9, 12 - diff), DIRECTIONS[RIGHT]
             },
             BACK: func(loc location.Location) (newloc, newdir location.Location) {
-                if dir == DIRS[LEFT] {
+                if dir == DIRECTIONS[LEFT] {
                     diff := loc.Y - 8
-                    return location.New(13 - diff, 12), DIRS[TOP]
+                    return location.New(13 - diff, 12), DIRECTIONS[TOP]
                 }
 
-                if dir == DIRS[BOTTOM] {
+                if dir == DIRECTIONS[BOTTOM] {
                     diff := loc.X - 4
-                    return location.New(9 - diff, 12), DIRS[TOP]
+                    return location.New(9 - diff, 12), DIRECTIONS[TOP]
                 }
 
                 diff := loc.X - 4
-                return location.New(9 - diff, 1), DIRS[BOTTOM]
+                return location.New(9 - diff, 1), DIRECTIONS[BOTTOM]
             },
         },
     }
 
-    return dirmap[size][sface](end)
+    pp, dd := dirmap[size][sface](end)
+
+    //fmt.Printf("going from (%v,%v) %v/%v to %v/%v\n", sface, DIRS[dir], end, dir, pp, dd)
+
+    return pp, dd
 
 }
 
