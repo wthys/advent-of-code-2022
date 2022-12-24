@@ -10,7 +10,13 @@ type (
     distMap[T comparable] map[T]int
     prevMap[T comparable] map[T]*T
 
-    Dijkstra[T comparable] struct {
+    Dijkstra[T comparable] interface {
+        ShortestPathTo(end T) []T
+        ShortestPathLengthTo(end T) int
+        DoNodes(doer func(node T) bool)
+    }
+
+    SimpleDijkstra[T comparable] struct {
         Start T
         dist distMap[T]
         prev prevMap[T]
@@ -54,10 +60,10 @@ func ConstructDijkstra[T comparable](start T, neejbers NeejberFunc[T]) Dijkstra[
         }
     }
 
-    return Dijkstra[T]{start, dist, prev}
+    return SimpleDijkstra[T]{start, dist, prev}
 }
 
-func (d Dijkstra[T]) ShortestPathTo(end T) []T {
+func (d SimpleDijkstra[T]) ShortestPathTo(end T) []T {
     path := []T{}
     node := &end
     for node != nil && *node != d.Start {
@@ -76,7 +82,7 @@ func (d Dijkstra[T]) ShortestPathTo(end T) []T {
     return path
 }
 
-func (d Dijkstra[T]) DoNodes(doer func(node T) bool) {
+func (d SimpleDijkstra[T]) DoNodes(doer func(node T) bool) {
     for node, _ := range d.prev {
         if !doer(node) {
             return
@@ -85,7 +91,7 @@ func (d Dijkstra[T]) DoNodes(doer func(node T) bool) {
 }
 
 
-func (d Dijkstra[T]) ShortestPathLengthTo(end T) int {
+func (d SimpleDijkstra[T]) ShortestPathLengthTo(end T) int {
     dist, ok := d.dist[end]
     if !ok {
         return INFINITE
