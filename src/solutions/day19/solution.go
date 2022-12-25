@@ -8,6 +8,7 @@ import (
     "strings"
 
     "github.com/wthys/advent-of-code-2022/solver"
+    pf "github.com/wthys/advent-of-code-2022/pathfinding"
 )
 
 type solution struct{}
@@ -26,6 +27,77 @@ func (s solution) Part1(input []string) (string, error) {
         return solver.Error(err)
     }
 
+
+    neejbers := func (tick BPTick) []BPTick {
+        if tick.tick >= 24 {
+            return []BPTick{}
+        }
+        neejbers := []BPTick{}
+        next := tick.tick + 1
+
+        orecost := tick.bp.OreBotCost
+        claycost := tick.bp.ClayBotCost
+        obscost := tick.bp.ObsidianBotCost
+        geocost := tick.bp.GeodeBotCost
+
+        nOre := tick.bp.nOreBots
+        nClay := tick.bp.nClayBots
+        nObs := tick.bp.nObsidianBots
+
+        oreNeeded := max(orecost.Ore, claycost.Ore, obscost.Ore, geocost.Ore)
+        clayNeeded := max(orecost.Clay, claycost.Clay, obscost.Clay, geocost.Clay)
+        obsNeeded := max(orecost.Obsidian, claycost.Obsidian, obscost.Obsidian, geocost.Obsidian)
+
+        prodBP := tick.bp
+        prodBP.Produce()
+        neejbers = append(neejbers, BPTick{prodBP, next})
+
+
+        geoBP := tick.bp
+        if geoBP.PayGeodeBot() {
+            geoBP.Produce()
+            geoBP.AddGeodeBot()
+            neejbers = append(neejbers, BPTick{geoBP, next})
+        }
+
+        if nObs < obsNeeded {
+            obsBP := tick.bp
+            if obsBP.PayObsidianBot() {
+                obsBP.Produce()
+                obsBP.AddObsidianBot()
+                neejbers = append(neejbers, BPTick{obsBP, next})
+            }
+        }
+
+        if nClay < clayNeeded {
+            clayBP := tick.bp
+            if clayBP.PayClayBot() {
+                clayBP.Produce()
+                clayBP.AddClayBot()
+                neejbers = append(neejbers, BPTick{clayBP, next})
+            }
+        }
+
+        if nOre < oreNeeded {
+            oreBP := tick.bp
+            if oreBP.PayOreBot() {
+                oreBP.Produce()
+                oreBP.AddOreBot()
+                neejbers = append(neejbers, BPTick{oreBP, next})
+            }
+        }
+
+        return neejbers
+    }
+
+    watcher := func(node BPTick) bool {
+        inv := node.bp.Inventory
+        fmt.Printf("BP #%v @ %v -> %3v, %3v, %3v, %3v\n", node.bp.Id, node.tick, inv.Geode, inv.Obsidian, inv.Clay, inv.Ore)
+        return false
+    }
+
+
+
     totalQuality := 0
     totalMutex := sync.Mutex{}
     wg := sync.WaitGroup{}
@@ -37,9 +109,25 @@ func (s solution) Part1(input []string) (string, error) {
         go func() {
             defer wg.Done()
 
-            BP = MaximizeBlueprint(BP, 24)
-            quality := BP.Id * BP.Inventory.Geode
-            fmt.Printf("bp %v has %v geodes -> %v\n", BP.Id, BP.Inventory.Geode, quality)
+            start := BPTick{BP, 0}
+            d := pf.ControlledDijkstra(start, neejbers, watcher)
+
+            bestBP := BP
+            best := 0
+            d.DoNodes(func(node BPTick) bool {
+                if node.tick != 24 {
+                    return true
+                }
+
+                if node.bp.Inventory.Geode > best {
+                    bestBP = node.bp
+                    best = node.bp.Inventory.Geode
+                }
+                return true
+            })
+
+            quality := bestBP.Id * best
+            fmt.Printf("bp %v has %v geodes -> %v\n", bestBP.Id, best, quality)
 
             totalMutex.Lock()
             totalQuality += quality
@@ -75,6 +163,11 @@ type (
         nClayBots int
         nObsidianBots int
         nGeodeBots int
+    }
+
+    BPTick struct {
+        bp Blueprint
+        tick int
     }
 )
 
