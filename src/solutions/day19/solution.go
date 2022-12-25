@@ -48,12 +48,22 @@ func (s solution) Part1(input []string) (string, error) {
         clayNeeded := max(orecost.Clay, claycost.Clay, obscost.Clay, geocost.Clay)
         obsNeeded := max(orecost.Obsidian, claycost.Obsidian, obscost.Obsidian, geocost.Obsidian)
 
+        inv := tick.bp.Inventory
+        /*
+        timeLeft := 24 - tick.tick - 1
+
+        needOre := (timeLeft * nOre + inv.Ore) < (timeLeft * oreNeeded)
+        needClay := (timeLeft * nClay + inv.Clay) < (timeLeft * clayNeeded)
+        needObs := (timeLeft * nObs + inv.Obsidian) < (timeLeft * obsNeeded)
+
+        //*/
 
         geoBP := tick.bp
         if geoBP.PayGeodeBot() {
             geoBP.Produce()
             geoBP.AddGeodeBot()
             neejbers = append(neejbers, BPTick{geoBP, next})
+            return neejbers
         }
 
         if nObs < obsNeeded {
@@ -83,7 +93,7 @@ func (s solution) Part1(input []string) (string, error) {
             }
         }
 
-        if len(neejbers) == 0 {
+        if inv.LessThanOrEqual(geocost) || inv.LessThanOrEqual(obscost) || inv.LessThanOrEqual(claycost) || inv.LessThanOrEqual(orecost) {
             prodBP := tick.bp
             prodBP.Produce()
             neejbers = append(neejbers, BPTick{prodBP, next})
@@ -93,9 +103,10 @@ func (s solution) Part1(input []string) (string, error) {
         return neejbers
     }
 
+
     watcher := func(node BPTick) bool {
         inv := node.bp.Inventory
-        fmt.Printf("BP #%v @ %v -> %3v, %3v, %3v, %3v\n", node.bp.Id, node.tick, inv.Geode, inv.Obsidian, inv.Clay, inv.Ore)
+        fmt.Printf("BP %2v best @ %v -> %3v, %3v, %3v, %3v\n", node.bp.Id, node.tick, inv.Geode, inv.Obsidian, inv.Clay, inv.Ore)
         return false
     }
 
@@ -107,6 +118,11 @@ func (s solution) Part1(input []string) (string, error) {
     for _, bp := range blueprints {
         BP := *bp
         fmt.Printf("started processing bp %v\n", BP.Id)
+
+        fmt.Printf("  bp %2v: ore cost = %v\n", BP.Id, BP.OreBotCost)
+        fmt.Printf("  bp %2v: clay cost = %v\n", BP.Id, BP.ClayBotCost)
+        fmt.Printf("  bp %2v: obsidian cost = %v\n", BP.Id, BP.ObsidianBotCost)
+        fmt.Printf("  bp %2v: geode cost = %v\n", BP.Id, BP.GeodeBotCost)
 
         wg.Add(1)
         go func() {
@@ -397,11 +413,11 @@ func (bp *Blueprint) Produce() {
 }
 
 func (bp *Blueprint) PayOreBot() bool {
-    if !bp.OreBotCost.LessThanOrEqual(bp.Inventory) {
+    if !(*bp).OreBotCost.LessThanOrEqual((*bp).Inventory) {
         return false
     }
 
-    (*bp).Inventory = (*bp).Inventory.Subtract(bp.OreBotCost)
+    (*bp).Inventory = (*bp).Inventory.Subtract((*bp).OreBotCost)
     return true
 }
 
@@ -410,11 +426,11 @@ func (bp *Blueprint) AddOreBot() {
 }
 
 func (bp *Blueprint) PayClayBot() bool {
-    if !bp.ClayBotCost.LessThanOrEqual(bp.Inventory) {
+    if !(*bp).ClayBotCost.LessThanOrEqual((*bp).Inventory) {
         return false
     }
 
-    (*bp).Inventory = (*bp).Inventory.Subtract(bp.ClayBotCost)
+    (*bp).Inventory = (*bp).Inventory.Subtract((*bp).ClayBotCost)
     return true
 }
 
@@ -423,11 +439,11 @@ func (bp *Blueprint) AddClayBot() {
 }
 
 func (bp *Blueprint) PayObsidianBot() bool {
-    if !bp.ObsidianBotCost.LessThanOrEqual(bp.Inventory) {
+    if !(*bp).ObsidianBotCost.LessThanOrEqual((*bp).Inventory) {
         return false
     }
 
-    (*bp).Inventory = (*bp).Inventory.Subtract(bp.ObsidianBotCost)
+    (*bp).Inventory = (*bp).Inventory.Subtract((*bp).ObsidianBotCost)
     return true
 }
 
@@ -436,11 +452,11 @@ func (bp *Blueprint) AddObsidianBot() {
 }
 
 func (bp *Blueprint) PayGeodeBot() bool {
-    if !bp.GeodeBotCost.LessThanOrEqual(bp.Inventory) {
+    if !(*bp).GeodeBotCost.LessThanOrEqual((*bp).Inventory) {
         return false
     }
 
-    (*bp).Inventory = (*bp).Inventory.Subtract(bp.GeodeBotCost)
+    (*bp).Inventory = (*bp).Inventory.Subtract((*bp).GeodeBotCost)
     return true
 }
 
