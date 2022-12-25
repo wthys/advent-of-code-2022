@@ -48,10 +48,6 @@ func (s solution) Part1(input []string) (string, error) {
         clayNeeded := max(orecost.Clay, claycost.Clay, obscost.Clay, geocost.Clay)
         obsNeeded := max(orecost.Obsidian, claycost.Obsidian, obscost.Obsidian, geocost.Obsidian)
 
-        prodBP := tick.bp
-        prodBP.Produce()
-        neejbers = append(neejbers, BPTick{prodBP, next})
-
 
         geoBP := tick.bp
         if geoBP.PayGeodeBot() {
@@ -86,6 +82,13 @@ func (s solution) Part1(input []string) (string, error) {
                 neejbers = append(neejbers, BPTick{oreBP, next})
             }
         }
+
+        if len(neejbers) == 0 {
+            prodBP := tick.bp
+            prodBP.Produce()
+            neejbers = append(neejbers, BPTick{prodBP, next})
+        }
+
 
         return neejbers
     }
