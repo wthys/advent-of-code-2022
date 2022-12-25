@@ -27,12 +27,26 @@ func (s solution) Part1(input []string) (string, error) {
         return solver.Error(err)
     }
 
+    bestGeodes := map[int]map[int]int{}
+    bestGeodesMutex := sync.Mutex{}
+
     neejbers := func (tick BPTick) []BPTick {
-        if tick.tick >= 24 {
-            return []BPTick{}
-        }
         neejbers := []BPTick{}
+        if tick.tick >= 24 {
+            return neejbers
+        }
+
+        ///*
+        bestGeodesMutex.Lock()
+        bestGeo, _ := bestGeodes[tick.bp.Id][tick.tick]
+        bestGeodesMutex.Unlock()
+        if tick.bp.Inventory.Geode < bestGeo {
+            return neejbers
+        }
+        //*/
+
         next := tick.tick + 1
+        timeLeft := 24 - tick.tick
 
         orecost := tick.bp.OreBotCost
         claycost := tick.bp.ClayBotCost
@@ -48,54 +62,74 @@ func (s solution) Part1(input []string) (string, error) {
         obsNeeded := max(orecost.Obsidian, claycost.Obsidian, obscost.Obsidian, geocost.Obsidian)
 
         inv := tick.bp.Inventory
-        /*
-        timeLeft := 24 - tick.tick - 1
 
-        needOre := (timeLeft * nOre + inv.Ore) < (timeLeft * oreNeeded)
-        needClay := (timeLeft * nClay + inv.Clay) < (timeLeft * clayNeeded)
-        needObs := (timeLeft * nObs + inv.Obsidian) < (timeLeft * obsNeeded)
-
-        //*/
-
-        geoBP := tick.bp
-        if geoBP.PayGeodeBot() {
-            geoBP.Produce()
-            geoBP.AddGeodeBot()
-            neejbers = append(neejbers, BPTick{geoBP, next})
-            return neejbers
+        if nObs > 0 {
+            geoBP := tick.bp
+            t := next
+            for !geoBP.PayGeodeBot() {
+                geoBP.Produce()
+                t += 1
+            }
+            if t < 24 {
+                geoBP.Produce()
+                geoBP.AddGeodeBot()
+                neejbers = append(neejbers, BPTick{geoBP, t})
+            }
         }
 
-        if nObs < obsNeeded {
+        if (nObs * timeLeft + inv.Obsidian < obsNeeded * timeLeft) && nClay > 0 {
             obsBP := tick.bp
-            if obsBP.PayObsidianBot() {
+            t := next
+            for !obsBP.PayObsidianBot() {
+                obsBP.Produce()
+                t += 1
+            }
+            if t < 24 {
                 obsBP.Produce()
                 obsBP.AddObsidianBot()
-                neejbers = append(neejbers, BPTick{obsBP, next})
+                neejbers = append(neejbers, BPTick{obsBP, t})
             }
         }
 
-        if nClay < clayNeeded {
+        if nClay * timeLeft + inv.Clay < clayNeeded * timeLeft {
             clayBP := tick.bp
-            if clayBP.PayClayBot() {
+            t := next
+            for !clayBP.PayClayBot() {
+                clayBP.Produce()
+                t += 1
+            }
+            if t < 24 {
                 clayBP.Produce()
                 clayBP.AddClayBot()
-                neejbers = append(neejbers, BPTick{clayBP, next})
+                neejbers = append(neejbers, BPTick{clayBP, t})
             }
         }
 
-        if nOre < oreNeeded {
+        if nOre * timeLeft + inv.Ore < oreNeeded * timeLeft {
             oreBP := tick.bp
-            if oreBP.PayOreBot() {
+            t := next
+            for !oreBP.PayOreBot() {
+                oreBP.Produce()
+                t += 1
+            }
+            if t < 24 {
                 oreBP.Produce()
                 oreBP.AddOreBot()
-                neejbers = append(neejbers, BPTick{oreBP, next})
+                neejbers = append(neejbers, BPTick{oreBP, t})
             }
         }
 
-        if inv.LessThanOrEqual(geocost) || inv.LessThanOrEqual(obscost) || inv.LessThanOrEqual(claycost) || inv.LessThanOrEqual(orecost) {
+        if len(neejbers) == 0 {
             prodBP := tick.bp
+            t := next
+            /*
+            for t <= 24 {
+                prodBP.Produce()
+                t += 1
+            }
+            //*/
             prodBP.Produce()
-            neejbers = append(neejbers, BPTick{prodBP, next})
+            neejbers = append(neejbers, BPTick{prodBP, t})
         }
 
 
@@ -105,23 +139,34 @@ func (s solution) Part1(input []string) (string, error) {
 
     watcher := func(node BPTick) bool {
         inv := node.bp.Inventory
-        fmt.Printf("BP %2v best @ %v -> %3v, %3v, %3v, %3v\n", node.bp.Id, node.tick, inv.Geode, inv.Obsidian, inv.Clay, inv.Ore)
+        bestGeodesMutex.Lock()
+        if inv.Geode > bestGeodes[node.bp.Id][node.tick] {
+            bestGeodes[node.bp.Id][node.tick] = inv.Geode
+        }
+        bestGeodesMutex.Unlock()
+        //fmt.Printf("BP %2v best @ %2v -> %3v, %3v, %3v, %3v\n", node.bp.Id, node.tick, inv.Geode, inv.Obsidian, inv.Clay, inv.Ore)
         return false
     }
 
 
+
+    results := []Blueprint{}
 
     totalQuality := 0
     totalMutex := sync.Mutex{}
     wg := sync.WaitGroup{}
     for _, bp := range blueprints {
         BP := *bp
-        fmt.Printf("started processing bp %v\n", BP.Id)
+        //fmt.Printf("started processing bp %v\n", BP.Id)
 
-        fmt.Printf("  bp %2v: ore cost = %v\n", BP.Id, BP.OreBotCost)
-        fmt.Printf("  bp %2v: clay cost = %v\n", BP.Id, BP.ClayBotCost)
-        fmt.Printf("  bp %2v: obsidian cost = %v\n", BP.Id, BP.ObsidianBotCost)
-        fmt.Printf("  bp %2v: geode cost = %v\n", BP.Id, BP.GeodeBotCost)
+        //fmt.Printf("  bp %2v: ore cost = %v\n", BP.Id, BP.OreBotCost)
+        //fmt.Printf("  bp %2v: clay cost = %v\n", BP.Id, BP.ClayBotCost)
+        //fmt.Printf("  bp %2v: obsidian cost = %v\n", BP.Id, BP.ObsidianBotCost)
+        //fmt.Printf("  bp %2v: geode cost = %v\n", BP.Id, BP.GeodeBotCost)
+
+        bestGeodesMutex.Lock()
+        bestGeodes[BP.Id] = map[int]int{}
+        bestGeodesMutex.Unlock()
 
         wg.Add(1)
         go func() {
@@ -144,11 +189,12 @@ func (s solution) Part1(input []string) (string, error) {
                 return true
             })
 
-            quality := bestBP.Id * best
-            fmt.Printf("bp %v has %v geodes -> %v\n", bestBP.Id, best, quality)
 
+            quality := bestBP.Id * best
             totalMutex.Lock()
             totalQuality += quality
+            results = append(results, bestBP)
+            fmt.Printf("bp %v has %v geodes -> %v, %v left\n", bestBP.Id, best, quality, len(blueprints)-len(results))
             totalMutex.Unlock()
         }()
     }
