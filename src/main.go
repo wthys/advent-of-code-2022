@@ -51,13 +51,10 @@ func cmdRunFlags() []cli.Flag {
     return flags
 }
 
-type ctxKeyWithElapsed struct{}
-type ctxKeySession struct{}
-
 func cmdRun(ctx context.Context) cli.ActionFunc {
     return func (c *cli.Context) error {
         if c.Bool("elapsed") || c.Bool("e") {
-            ctx = context.WithValue(ctx, ctxKeyWithElapsed{}, true)
+            ctx = context.WithValue(ctx, "elapsed", true)
         }
 
         s, err := solver.GetSolver(c.Args().First())
@@ -65,7 +62,7 @@ func cmdRun(ctx context.Context) cli.ActionFunc {
             return err
         }
 
-        res, err := solver.Solve(s, bufio.NewReader(os.Stdin))
+        res, err := solver.Solve(s, bufio.NewReader(os.Stdin), ctx)
 
         if err != nil {
             return err
@@ -97,7 +94,7 @@ func cmdInputFlags() []cli.Flag {
 
 func cmdInput(ctx context.Context) cli.ActionFunc {
     return func (c *cli.Context) error {
-        
+
         var sess = c.String("session")
         if sess == "" {
             sess = c.String("s")
@@ -107,7 +104,7 @@ func cmdInput(ctx context.Context) cli.ActionFunc {
             }
         }
 
-        ctx = context.WithValue(ctx, ctxKeySession{}, sess)
+        ctx = context.WithValue(ctx, "session", sess)
 
         day := c.Args().First()
         if day == "" {

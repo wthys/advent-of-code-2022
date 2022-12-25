@@ -4,6 +4,8 @@ import (
     "errors"
     "fmt"
     "io"
+    "context"
+    "time"
 )
 
 
@@ -72,11 +74,12 @@ func GetSolver(day string) (Solver, error) {
     return solver, nil
 }
 
-func Solve(solver Solver, input io.Reader) (Result, error) {
+func Solve(solver Solver, input io.Reader, ctx context.Context) (Result, error) {
     res := Result{
         Name: solver.Day(),
         Part1: Unsolved,
         Part2: Unsolved,
+        Elapsed: nil,
     }
 
     lines, err := ReadLines(input)
@@ -85,26 +88,52 @@ func Solve(solver Solver, input io.Reader) (Result, error) {
         return Result{}, fmt.Errorf("failed to read: %w", err)
     }
 
-    if err := res.AddAnswers(solver, lines); err != nil {
+    if err := res.AddAnswers(solver, lines, ctx); err != nil {
         return Result{}, fmt.Errorf("failed to add answers: %w", err)
     }
 
     return res, nil
 }
 
-func (r *Result) AddAnswers(s Solver, input []string) error {
+func (r *Result) AddAnswers(s Solver, input []string, ctx context.Context) error {
+    elapsed, ok := ctx.Value("elapsed").(bool)
+    if !ok {
+        elapsed = false
+    }
+
+    durations := []time.Duration{}
+
+    var start time.Time
+
+    if (elapsed) {
+        start = time.Now()
+    }
     part1, err := s.Part1(input)
+    if (elapsed) {
+        durations = append(durations, time.Since(start))
+    }
     if err != nil && !errors.Is(err, ErrNotImplemented) {
         return fmt.Errorf("failed to solve Part1: %w", err)
     }
 
+    if (elapsed) {
+        start = time.Now()
+    }
     part2, err := s.Part2(input)
+    if (elapsed) {
+        durations = append(durations, time.Since(start))
+    }
     if err != nil && !errors.Is(err, ErrNotImplemented) {
         return fmt.Errorf("failed to solve Part2: %w", err)
     }
 
+    if !elapsed {
+        durations = nil
+    }
+
     r.Part1 = part1
     r.Part2 = part2
+    r.Elapsed = durations
 
     return nil
 }

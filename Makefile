@@ -8,7 +8,10 @@ GOFILES:=$(shell find src/ -type f -name "*.go")
 NOWDATE:=$(shell TZ="EST" date +%Y%m%d)
 NOWDAY:=$(shell TZ="EST" date +%d)
 ENDDATE:=20221225
-DOCKERRUN=docker run --rm -i --env AOC_SESSION ${AOC_RUNOPTS} aoc2022:latest
+DOCKERRUN=docker run --rm -i --env AOC_SESSION ${AOC_RUNOPTS} aoc2022:latest $(ELAPSEDOPTS)
+ifdef ELAPSED
+ELAPSEDOPTS:=-e
+endif
 
 .PHONY: build run run-all clean example build-run run-bare example-bare
 
