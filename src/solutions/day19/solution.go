@@ -27,7 +27,6 @@ func (s solution) Part1(input []string) (string, error) {
         return solver.Error(err)
     }
 
-
     neejbers := func (tick BPTick) []BPTick {
         if tick.tick >= 24 {
             return []BPTick{}
